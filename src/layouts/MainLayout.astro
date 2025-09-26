@@ -17,32 +17,31 @@ const { title } = Astro.props;
     <script is:inline src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
     <script is:inline src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js" defer></script>
   </head>
-              <body class="d-flex h-100 text-body bg-light" x-data="{ darkMode: false }" x-init="
-                // Load dark mode preference from localStorage
-                darkMode = localStorage.getItem('darkMode') === 'true';
-                // Apply dark mode class to body
-                document.body.classList.toggle('dark-mode', darkMode);
-              ">
-                <!-- Dark Mode Toggle Button -->
-                <button 
-                  class="btn btn-outline-secondary btn-sm position-fixed" 
-                  style="top: 10px; right: 10px; z-index: 1100;"
-                  @click="
-                    darkMode = !darkMode;
-                    document.body.classList.toggle('dark-mode', darkMode);
-                    localStorage.setItem('darkMode', darkMode);
-                  "
-                  :title="darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
-                >
-                  <i :class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
-                </button>
-                
-                
-                <div class="sidebar bg-white border-end vh-100 p-3" style="width: 250px; min-width: 250px;" x-data="playlists">
-                  <button class="btn btn-light btn-sm sidebar-toggle" onclick="toggleSidebar()" aria-label="Collapse playlists" title="Collapse playlists">⟨</button>
-                  <h5 class="mb-3 pe-4">Playlists</h5>
+  <body class="d-flex h-100 text-body bg-light" x-data="{ darkMode: false }" x-init="
+    // Load dark mode preference from localStorage
+    darkMode = localStorage.getItem('darkMode') === 'true';
+    // Apply dark mode class to body
+    document.body.classList.toggle('dark-mode', darkMode);
+  ">
+    <!-- Dark Mode Toggle Button -->
+    <button 
+      class="btn btn-outline-secondary btn-sm position-fixed" 
+      style="top: 10px; right: 10px; z-index: 1100;"
+      x-on:click="
+        darkMode = !darkMode;
+        document.body.classList.toggle('dark-mode', darkMode);
+        localStorage.setItem('darkMode', darkMode);
+      "
+      x-bind:title="darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'"
+    >
+      <i x-bind:class="darkMode ? 'fas fa-sun' : 'fas fa-moon'"></i>
+    </button>
+    
+    <div class="sidebar bg-white border-end vh-100 p-3" style="width: 250px; min-width: 250px;" x-data="playlists">
+      <button class="btn btn-light btn-sm sidebar-toggle" onclick="toggleSidebar()" aria-label="Collapse playlists" title="Collapse playlists">⟨</button>
+      <h5 class="mb-3 pe-4">Playlists</h5>
       <ul class="list-group" id="playlist-list"></ul>
-      <button class="btn btn-primary mt-3 w-100" @click="const name = prompt('Enter playlist name:'); if (name) addPlaylist(name)">New Playlist</button>
+      <button class="btn btn-primary mt-3 w-100" x-on:click="const name = prompt('Enter playlist name:'); if (name) addPlaylist(name)">New Playlist</button>
     </div>
     <button class="btn btn-light btn-sm sidebar-reveal" onclick="toggleSidebar()" aria-label="Expand playlists" title="Expand playlists">⟩</button>
     <main class="flex-grow-1 p-3 overflow-auto">
