@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+
 // Alpine.js components
 document.addEventListener("alpine:init", () => {
   console.log("🔧 Alpine init event fired, registering components...");
@@ -49,11 +50,8 @@ document.addEventListener("alpine:init", () => {
     // Stats
     totalSongs: 0,
 
-    // Play functionality
+    // Play/Pause functionality
     playSong(song) {
-      console.log("🎵 Playing song:", song.title, "by", song.artist);
-      console.log("🎵 Song path:", song.path);
-      
       if (window.player) {
         // Convert Windows path to API endpoint URL
         let audioUrl;
@@ -65,20 +63,45 @@ document.addEventListener("alpine:init", () => {
           audioUrl = song.path;
         }
         
-        console.log("🔗 Audio URL:", audioUrl);
+        // Store current song info on the player for comparison
+        if (!window.player.currentSong) {
+          window.player.currentSong = null;
+        }
         
-        window.player.source = {
-          type: 'audio',
-          sources: [{
-            src: audioUrl,
-            type: 'audio/mpeg'
-          }]
-        };
-        window.player.play();
+        const isSameSong = window.player.currentSong === audioUrl;
+        const isPlaying = !window.player.paused;
+        
+        if (isSameSong) {
+          // Same song is loaded, just toggle play/pause
+          if (isPlaying) {
+            console.log("⏸️ Pausing song:", song.title);
+            window.player.pause();
+          } else {
+            console.log("▶️ Resuming song:", song.title);
+            window.player.play();
+          }
+        } else {
+          // Different song, load and play this song
+          console.log("🎵 Playing song:", song.title, "by", song.artist);
+          console.log("🔗 Audio URL:", audioUrl);
+          
+          window.player.source = {
+            type: 'audio',
+            sources: [{
+              src: audioUrl,
+              type: 'audio/mpeg'
+            }]
+          };
+          
+          // Store the current song URL for future comparison
+          window.player.currentSong = audioUrl;
+          window.player.play();
+        }
       } else {
         console.error("❌ Player not initialized yet");
       }
     },
+
 
     async init() {
       try {

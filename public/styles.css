@@ -109,9 +109,370 @@ main {
   --plyr-audio-control-spacing: 10px;
 }
 
+/* Song row hover effects for double-click interaction */
+.song-row:hover {
+  background-color: rgba(13, 110, 253, 0.1) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.song-row {
+  transition: all 0.2s ease;
+  user-select: none; /* Prevent text selection on double-click */
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* IE/Edge */
+}
+
 /* Hide player on small screens if needed, but keep for now */
 @media (max-width: 576px) {
   .fixed-bottom {
     padding: 0.5rem;
   }
+}
+
+/* Dark Mode Styles */
+.dark-mode {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+/* Ensure all text elements have proper contrast in dark mode */
+.dark-mode * {
+  color: inherit;
+}
+
+.dark-mode .text-body {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .sidebar {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .sidebar h5 {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .sidebar .btn {
+  background-color: #404040 !important;
+  border-color: #555555 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .sidebar .btn:hover {
+  background-color: #555555 !important;
+  border-color: #666666 !important;
+}
+
+.dark-mode .sidebar .btn-primary {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+}
+
+.dark-mode .sidebar .btn-primary:hover {
+  background-color: #0b5ed7 !important;
+  border-color: #0a58ca !important;
+}
+
+.dark-mode .table {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: #3a3a3a !important;
+}
+
+.dark-mode .table-hover tbody tr:hover {
+  background-color: #404040 !important;
+}
+
+.dark-mode .table-dark {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .table-dark th {
+  background-color: #1a1a1a !important;
+  border-color: #404040 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .table td {
+  color: #e0e0e0 !important;
+  border-color: #404040 !important;
+}
+
+.dark-mode .table th {
+  color: #e0e0e0 !important;
+  border-color: #404040 !important;
+}
+
+.dark-mode .form-control {
+  background-color: #404040 !important;
+  border-color: #555555 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .form-control:focus {
+  background-color: #404040 !important;
+  border-color: #0d6efd !important;
+  color: #e0e0e0 !important;
+  box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.dark-mode .form-control::placeholder {
+  color: #adb5bd !important;
+  opacity: 1;
+}
+
+.dark-mode .form-control::-webkit-input-placeholder {
+  color: #adb5bd !important;
+  opacity: 1;
+}
+
+.dark-mode .form-control::-moz-placeholder {
+  color: #adb5bd !important;
+  opacity: 1;
+}
+
+.dark-mode .form-control:-ms-input-placeholder {
+  color: #adb5bd !important;
+  opacity: 1;
+}
+
+.dark-mode .form-label {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .text-muted {
+  color: #adb5bd !important;
+}
+
+.dark-mode .btn-outline-primary {
+  color: #0d6efd !important;
+  border-color: #0d6efd !important;
+}
+
+.dark-mode .btn-outline-primary:hover {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+  color: #fff !important;
+}
+
+.dark-mode .btn-outline-secondary {
+  color: #6c757d !important;
+  border-color: #6c757d !important;
+}
+
+.dark-mode .btn-outline-secondary:hover {
+  background-color: #6c757d !important;
+  border-color: #6c757d !important;
+  color: #fff !important;
+}
+
+.dark-mode .fixed-bottom {
+  background-color: #2d2d2d !important;
+  border-top: 1px solid #404040 !important;
+}
+
+.dark-mode .song-row:hover {
+  background-color: rgba(13, 110, 253, 0.2) !important;
+}
+
+.dark-mode .sortable:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Dark mode toggle button styling */
+.dark-mode .btn-outline-secondary {
+  background-color: #404040 !important;
+  border-color: #555555 !important;
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .btn-outline-secondary:hover {
+  background-color: #555555 !important;
+  border-color: #666666 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Cover art placeholder styling */
+.dark-mode .table img {
+  background-color: #404040 !important;
+}
+
+/* Ensure all spans and text elements are visible */
+.dark-mode span {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .text-center {
+  color: #e0e0e0 !important;
+}
+
+/* Fix the library stats text */
+.dark-mode .text-center span {
+  color: #e0e0e0 !important;
+}
+
+/* Ensure proper contrast for all text in dark mode */
+.dark-mode p, .dark-mode div, .dark-mode span, .dark-mode td, .dark-mode th {
+  color: #e0e0e0 !important;
+}
+
+/* More aggressive dark mode text fixes */
+.dark-mode .table tbody tr td {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .table thead tr th {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .table thead tr th i {
+  color: #e0e0e0 !important;
+}
+
+/* Fix form labels and inputs */
+.dark-mode label {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode input {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode input::placeholder {
+  color: #adb5bd !important;
+}
+
+/* Fix all text elements with higher specificity */
+.dark-mode .text-center,
+.dark-mode .text-center *,
+.dark-mode .mb-3,
+.dark-mode .mb-3 *,
+.dark-mode .form-label,
+.dark-mode .form-label * {
+  color: #e0e0e0 !important;
+}
+
+/* Force all text to be visible in dark mode */
+.dark-mode *:not(.btn):not(.btn *) {
+  color: #e0e0e0 !important;
+}
+
+.dark-mode .btn {
+  color: inherit !important;
+}
+
+/* Debug: Make sure dark mode is working */
+body.dark-mode {
+  background-color: #1a1a1a !important;
+}
+
+/* Override Bootstrap's default text colors in dark mode */
+body.dark-mode .text-body {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .text-muted {
+  color: #adb5bd !important;
+}
+
+/* Force table text visibility */
+body.dark-mode table td,
+body.dark-mode table th {
+  color: #e0e0e0 !important;
+}
+
+/* Force form text visibility */
+body.dark-mode label,
+body.dark-mode .form-label {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode input,
+body.dark-mode .form-control {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode input::placeholder {
+  color: #adb5bd !important;
+}
+
+/* Refined dark mode text styling */
+body.dark-mode * {
+  color: #e0e0e0 !important;
+}
+
+/* Keep buttons with their intended colors */
+body.dark-mode .btn,
+body.dark-mode .btn * {
+  color: inherit !important;
+}
+
+/* Proper dark mode background */
+body.dark-mode {
+  background-color: #1a1a1a !important;
+}
+
+/* Fix table row contrast in dark mode */
+body.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > td {
+  background-color: #2d2d2d !important; /* Darker for odd rows */
+}
+
+body.dark-mode .table-striped > tbody > tr:nth-of-type(even) > td {
+  background-color: #1a1a1a !important; /* Even darker for even rows */
+}
+
+/* Ensure all table text is white in dark mode */
+body.dark-mode .table td {
+  color: #ffffff !important;
+  background-color: inherit !important;
+}
+
+/* Fix table hover states */
+body.dark-mode .table-hover tbody tr:hover {
+  background-color: #404040 !important;
+}
+
+body.dark-mode .table-hover tbody tr:hover td {
+  background-color: #404040 !important;
+}
+
+/* Table header border - around the whole row, not individual cells */
+body.dark-mode .table-dark {
+  border: 1px solid #404040 !important;
+  border-radius: 4px 4px 0 0 !important;
+}
+
+body.dark-mode .table-dark th {
+  border: none !important;
+}
+
+/* Dark mode audio player - two-tone effect */
+body.dark-mode .fixed-bottom {
+  background-color: #1a1a1a !important; /* Dark outer container */
+  border: 2px solid #404040 !important;
+  border-radius: 4px !important;
+  padding: 1rem !important; /* Match Bootstrap's default padding */
+}
+
+body.dark-mode .plyr {
+  --plyr-color-main: #1a1a1a !important; /* Dark text on light background */
+  --plyr-audio-controls-background: #404040 !important; /* Lighter inner background */
+  --plyr-audio-control-color: #1a1a1a !important; /* Dark controls */
+  --plyr-audio-control-color-hover: #000000 !important; /* Darker on hover */
+  --plyr-audio-progress-buffered-background: #666666 !important; /* Lighter track */
+  --plyr-audio-progress-played-background: #1a1a1a !important; /* Dark progress */
+  --plyr-audio-range-track-background: #666666 !important; /* Lighter volume track */
+  --plyr-audio-range-thumb-background: #1a1a1a !important; /* Dark thumb */
+  --plyr-audio-range-thumb-border: #1a1a1a !important; /* Dark thumb border */
+  background-color: #404040 !important; /* Light inner background */
+  border-radius: 4px !important; /* Rounded corners for inner area */
 }

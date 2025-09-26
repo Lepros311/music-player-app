@@ -41,7 +41,6 @@ import MainLayout from '../layouts/MainLayout.astro';
                 <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
                 <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
               </span>
-              <span x-show="sortBy !== 'title'"><i class="fas fa-sort text-muted"></i></span>
             </th>
             <th @click="sort('artist')" class="sortable" style="cursor: pointer; width: 20%;">
               Artist 
@@ -49,7 +48,6 @@ import MainLayout from '../layouts/MainLayout.astro';
                 <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
                 <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
               </span>
-              <span x-show="sortBy !== 'artist'"><i class="fas fa-sort text-muted"></i></span>
             </th>
             <th @click="sort('album')" class="sortable" style="cursor: pointer; width: 20%;">
               Album 
@@ -57,7 +55,6 @@ import MainLayout from '../layouts/MainLayout.astro';
                 <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
                 <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
               </span>
-              <span x-show="sortBy !== 'album'"><i class="fas fa-sort text-muted"></i></span>
             </th>
             <th @click="sort('duration')" class="sortable" style="cursor: pointer; width: 8%;">
               Duration 
@@ -65,7 +62,6 @@ import MainLayout from '../layouts/MainLayout.astro';
                 <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
                 <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
               </span>
-              <span x-show="sortBy !== 'duration'"><i class="fas fa-sort text-muted"></i></span>
             </th>
             <th @click="sort('year')" class="sortable" style="cursor: pointer; width: 7%;">
               Year 
@@ -73,10 +69,8 @@ import MainLayout from '../layouts/MainLayout.astro';
                 <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
                 <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
               </span>
-              <span x-show="sortBy !== 'year'"><i class="fas fa-sort text-muted"></i></span>
             </th>
             <th style="width: 10%;">Cover</th>
-            <th style="width: 10%;">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -84,7 +78,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           
           <!-- Songs -->
           <template x-for="song in displayedSongs" :key="song.id">
-            <tr>
+            <tr @dblclick="playSong(song)" class="song-row">
               <td x-text="song.title"></td>
               <td x-text="song.artist"></td>
               <td x-text="song.album"></td>
@@ -97,20 +91,12 @@ import MainLayout from '../layouts/MainLayout.astro';
                   <div style="display: none; font-size: 10px; color: #6c757d; text-align: center; padding: 2px;">?</div>
                 </div>
               </td>
-              <td>
-                <button
-                  class="btn btn-sm btn-outline-primary"
-                  @click="playSong(song)"
-                >
-                  Play
-                </button>
-              </td>
             </tr>
           </template>
           
           <!-- No songs state -->
           <tr x-show="displayedSongs.length === 0">
-            <td colspan="7" class="text-center py-4 text-muted">
+            <td colspan="6" class="text-center py-4 text-muted">
               No songs found. Try adjusting your search or filters.
             </td>
           </tr>
