@@ -7,26 +7,26 @@ import MainLayout from '../layouts/MainLayout.astro';
   <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
     <!-- Library Stats -->
     <div class="text-center mb-3">
-      Library: <span x-text="totalSongs || 0"></span> songs | Page <span x-text="currentPage || 1"></span> of <span x-text="totalPages || 1"></span>
+      Library: <span x-text="totalSongs || 0"></span> songs | Showing <span x-text="displayedSongs.length || 0"></span> of <span x-text="filteredSongs.length || 0"></span> filtered results
     </div>
 
     <!-- Search/Filter Bar: 4 cols on lg+, 2 cols on md, stacked on sm -->
     <div class="row g-3 mb-3">
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Search All</label>
-        <input type="text" class="form-control" placeholder="Search songs, artists, albums..." x-model="searchTerm" @input="console.log('Search input changed:', searchTerm); applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Search songs, artists, albums..." x-model="searchTerm" @input="applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Artist</label>
-        <input type="text" class="form-control" placeholder="Enter artist name..." x-model="filters.artist" @input="console.log('Artist input changed:', filters.artist, 'All filters:', filters); applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Enter artist name..." x-model="filters.artist" @input="applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Album</label>
-        <input type="text" class="form-control" placeholder="Enter album name..." x-model="filters.album" @input="console.log('Album input changed:', filters.album); applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Enter album name..." x-model="filters.album" @input="applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Year</label>
-        <input type="number" class="form-control" placeholder="Enter year..." x-model="filters.year" @input="console.log('Year input changed:', filters.year); applyFiltersAndSort()" />
+        <input type="number" class="form-control" placeholder="Enter year..." x-model="filters.year" @input="applyFiltersAndSort()" />
       </div>
     </div>
 
@@ -83,7 +83,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           <!-- Loading state removed - now using modal overlay -->
           
           <!-- Songs -->
-          <template x-for="song in songs" :key="song.id">
+          <template x-for="song in displayedSongs" :key="song.id">
             <tr>
               <td x-text="song.title"></td>
               <td x-text="song.artist"></td>
@@ -100,7 +100,7 @@ import MainLayout from '../layouts/MainLayout.astro';
               <td>
                 <button
                   class="btn btn-sm btn-outline-primary"
-                  @click="console.log('Playing:', song.path); window.player.source = { type: 'audio', sources: [{ src: song.path, type: 'audio/mpeg' }] }; window.player.play()"
+                  @click="playSong(song)"
                 >
                   Play
                 </button>
@@ -109,7 +109,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           </template>
           
           <!-- No songs state -->
-          <tr x-show="!isLoading && songs.length === 0">
+          <tr x-show="displayedSongs.length === 0">
             <td colspan="7" class="text-center py-4 text-muted">
               No songs found. Try adjusting your search or filters.
             </td>
@@ -118,22 +118,15 @@ import MainLayout from '../layouts/MainLayout.astro';
       </table>
     </div>
 
-    <!-- Pagination -->
-    <nav aria-label="Songs pagination" x-show="totalPages >= 1" class="mb-5 pb-4">
-      <ul class="pagination justify-content-center">
-        <li class="page-item" :class="{ disabled: currentPage === 1 }">
-          <button class="page-link" @click="prevPage()" :disabled="currentPage === 1">Previous</button>
-        </li>
-        <template x-for="page in Array.from({length: Math.min(5, totalPages)}, (_, i) => Math.max(1, currentPage - 2) + i).filter(p => p <= totalPages)" :key="page">
-          <li class="page-item" :class="{ active: page === currentPage }">
-            <button class="page-link" @click="goToPage(page)" x-text="page"></button>
-          </li>
-        </template>
-        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-          <button class="page-link" @click="nextPage()" :disabled="currentPage === totalPages">Next</button>
-        </li>
-      </ul>
-    </nav>
+    <!-- Load More Button -->
+    <div class="text-center mb-5 pb-4" x-show="hasMoreSongs">
+      <button 
+        class="btn btn-outline-primary btn-lg" 
+        @click="loadMore()" 
+        :disabled="isLoadingMore"
+        x-text="isLoadingMore ? 'Loading...' : `Load More (${remainingSongs} remaining)`">
+      </button>
+    </div>
 
   </div>
 </MainLayout>
