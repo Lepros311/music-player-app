@@ -1,21 +1,23 @@
-// Initialize Plyr audio player
-let player = null;
+            // Initialize Plyr audio player
+            let player = null;
 
-document.addEventListener('DOMContentLoaded', () => {
-  console.log("🎵 Initializing Plyr audio player...");
-  const audioElement = document.getElementById('player');
-  if (audioElement && window.Plyr) {
-    player = new Plyr(audioElement, {
-      controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume'],
-      settings: ['speed'],
-      speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
-    });
-    window.player = player;
-    console.log("✅ Plyr player initialized:", player);
-  } else {
-    console.error("❌ Failed to initialize Plyr player - audio element or Plyr not found");
-  }
-});
+            document.addEventListener('DOMContentLoaded', () => {
+              console.log("🎵 Initializing Plyr audio player...");
+              const audioElement = document.getElementById('player');
+              if (audioElement && window.Plyr) {
+                player = new Plyr(audioElement, {
+                  controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume'],
+                  settings: ['speed'],
+                  speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
+                });
+                window.player = player;
+                console.log("✅ Plyr player initialized:", player);
+              } else {
+                console.error("❌ Failed to initialize Plyr player - audio element or Plyr not found");
+              }
+
+              console.log("✅ Return to top button uses direct onclick handler");
+            });
 
 
 // Alpine.js components
@@ -42,11 +44,15 @@ document.addEventListener("alpine:init", () => {
     sortBy: "artist",
     sortDir: "asc",
     
-                // Lazy loading
-                itemsPerPage: 50,
-                currentDisplayCount: 50,
+            // Lazy loading
+            itemsPerPage: 100,
+            currentDisplayCount: 100,
                 isLoadingMore: false,
                 loadMoreObserver: null,
+                
+                // Return to top
+                showReturnToTop: false,
+                headerObserver: null,
     
     // Stats
     totalSongs: 0,
@@ -114,6 +120,9 @@ document.addEventListener("alpine:init", () => {
                     
                     // Set up automatic lazy loading
                     this.setupLazyLoading();
+                    
+                    // Set up return to top button
+                    this.setupReturnToTop();
                   } catch (error) {
                     console.error("Error initializing library:", error);
                   }
@@ -247,6 +256,35 @@ document.addEventListener("alpine:init", () => {
                       this.loadMoreObserver.observe(sentinel);
                       console.log('👀 Lazy loading observer set up');
                     }
+                  });
+                },
+
+            setupReturnToTop() {
+              // Ensure button starts hidden
+              this.showReturnToTop = false;
+              
+              this.$nextTick(() => {
+                const tableHeader = document.querySelector('.table-dark');
+                if (tableHeader && 'IntersectionObserver' in window) {
+                  this.headerObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                      this.showReturnToTop = !entry.isIntersecting;
+                    });
+                  }, {
+                    root: null,
+                    rootMargin: '0px',
+                    threshold: 0
+                  });
+                  
+                  this.headerObserver.observe(tableHeader);
+                }
+              });
+            },
+
+                returnToTop() {
+                  window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                   });
                 },
 

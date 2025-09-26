@@ -3,8 +3,9 @@
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
-<MainLayout title="Music Library">
-  <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
+        <MainLayout title="Music Library">
+          <div id="top"></div>
+          <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
     <!-- Library Stats -->
     <div class="text-center mb-3">
       Library: <span x-text="totalSongs || 0"></span> songs | Showing <span x-text="displayedSongs.length || 0"></span> of <span x-text="filteredSongs.length || 0"></span> filtered results
@@ -116,5 +117,17 @@ import MainLayout from '../layouts/MainLayout.astro';
                   </div>
                 </div>
 
-  </div>
+            <!-- Return to Top Button -->
+            <a 
+              href="#top"
+              id="return-to-top-btn"
+              x-show="showReturnToTop"
+              class="btn btn-primary btn-lg position-fixed rounded-circle shadow-lg d-flex align-items-center justify-content-center"
+              style="bottom: 120px; right: 20px; z-index: 1050; width: 60px; height: 60px; padding: 0; text-decoration: none;"
+              title="Return to top"
+            >
+              <i class="fas fa-arrow-up"></i>
+            </a>
+
+              </div>
 </MainLayout>

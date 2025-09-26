@@ -1,6 +1,18 @@
 /* public/styles.css */
 /* Initial responsive styles. Bootstrap makes it mobile-first. */
 
+/* Hide return to top button by default */
+#return-to-top-btn {
+  display: none !important;
+}
+
+/* Show when Alpine.js makes it visible (when it doesn't have style="display: none") */
+#return-to-top-btn:not([style*="display: none"]) {
+  display: flex !important;
+}
+
+
+
 /* Table layout fixes */
 .table th {
   white-space: nowrap;
@@ -11,8 +23,16 @@
   vertical-align: middle;
 }
 
+/* Light mode table header hover */
 .sortable:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: rgba(0, 0, 0, 0.1) !important;
+  color: #000000 !important;
+}
+
+/* Dark mode table header hover */
+body.dark-mode .sortable:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
 }
 
 .table img {
