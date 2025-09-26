@@ -57,8 +57,14 @@ body {
   top: 10px;
   right: 10px;
   z-index: 110;
-  padding: 2px 6px;
+  padding: 6px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  width: 28px;
+  transform: translateY(-1px);
 }
 
 .sidebar-reveal {
