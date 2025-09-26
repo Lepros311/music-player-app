@@ -1,0 +1,145 @@
+---
+// src/pages/index.astro
+import MainLayout from '../layouts/MainLayout.astro';
+---
+
+<MainLayout title="Music Library">
+  <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
+    <!-- Debug info -->
+    <div class="text-center mb-3" x-show="true">Library: <span x-text="totalSongs"></span> songs | Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span></div>
+    
+
+    <!-- Search/Filter Bar: 4 cols on lg+, 2 cols on md, stacked on sm -->
+    <div class="row g-3 mb-3">
+      <div class="col-lg-3 col-md-6">
+        <label class="form-label">Search All</label>
+        <input type="text" class="form-control" placeholder="Search songs, artists, albums..." x-model="searchTerm" @input.debounce.500ms="applyFiltersAndSort()" />
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <label class="form-label">Filter by Artist</label>
+        <input type="text" class="form-control" placeholder="Enter artist name..." x-model="filters.artist" @input.debounce.500ms="applyFiltersAndSort()" />
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <label class="form-label">Filter by Album</label>
+        <input type="text" class="form-control" placeholder="Enter album name..." x-model="filters.album" @input.debounce.500ms="applyFiltersAndSort()" />
+      </div>
+      <div class="col-lg-3 col-md-6">
+        <label class="form-label">Filter by Year</label>
+        <input type="number" class="form-control" placeholder="Enter year..." x-model="filters.year" @input.debounce.500ms="applyFiltersAndSort()" />
+      </div>
+    </div>
+
+    <!-- Library Table -->
+    <div class="table-responsive">
+      <table class="table table-hover table-striped" style="table-layout: fixed; width: 100%;">
+        <thead class="table-dark">
+          <tr>
+            <th @click="sort('title')" class="sortable" style="cursor: pointer; width: 25%;">
+              Title 
+              <span x-show="sortBy === 'title'">
+                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+              </span>
+              <span x-show="sortBy !== 'title'"><i class="fas fa-sort text-muted"></i></span>
+            </th>
+            <th @click="sort('artist')" class="sortable" style="cursor: pointer; width: 20%;">
+              Artist 
+              <span x-show="sortBy === 'artist'">
+                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+              </span>
+              <span x-show="sortBy !== 'artist'"><i class="fas fa-sort text-muted"></i></span>
+            </th>
+            <th @click="sort('album')" class="sortable" style="cursor: pointer; width: 20%;">
+              Album 
+              <span x-show="sortBy === 'album'">
+                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+              </span>
+              <span x-show="sortBy !== 'album'"><i class="fas fa-sort text-muted"></i></span>
+            </th>
+            <th @click="sort('duration')" class="sortable" style="cursor: pointer; width: 8%;">
+              Duration 
+              <span x-show="sortBy === 'duration'">
+                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+              </span>
+              <span x-show="sortBy !== 'duration'"><i class="fas fa-sort text-muted"></i></span>
+            </th>
+            <th @click="sort('year')" class="sortable" style="cursor: pointer; width: 7%;">
+              Year 
+              <span x-show="sortBy === 'year'">
+                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+              </span>
+              <span x-show="sortBy !== 'year'"><i class="fas fa-sort text-muted"></i></span>
+            </th>
+            <th style="width: 10%;">Cover</th>
+            <th style="width: 10%;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loading state -->
+          <tr x-show="isLoading">
+            <td colspan="7" class="text-center py-4">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <div class="mt-2">Loading songs...</div>
+            </td>
+          </tr>
+          
+          <!-- Songs -->
+          <template x-for="song in paginatedSongs" :key="song.id">
+            <tr>
+              <td x-text="song.title"></td>
+              <td x-text="song.artist"></td>
+              <td x-text="song.album"></td>
+              <td x-text="song.duration"></td>
+              <td x-text="song.year"></td>
+              <td>
+                <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 4px;">
+                  <img :src="song.cover" :alt="song.title + ' cover'" width="40" height="40" style="object-fit: cover; border-radius: 4px; max-width: 100%; max-height: 100%;" 
+                       @error="$el.style.display='none'; $el.nextElementSibling.style.display='flex';" />
+                  <div style="display: none; font-size: 10px; color: #6c757d; text-align: center; padding: 2px;">?</div>
+                </div>
+              </td>
+              <td>
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  @click="console.log('Playing:', song.path); window.player.source = { type: 'audio', sources: [{ src: song.path, type: 'audio/mpeg' }] }; window.player.play()"
+                >
+                  Play
+                </button>
+              </td>
+            </tr>
+          </template>
+          
+          <!-- No songs state -->
+          <tr x-show="!isLoading && songs.length === 0">
+            <td colspan="7" class="text-center py-4 text-muted">
+              No songs found. Try adjusting your search or filters.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Songs pagination" x-show="totalPages >= 1">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" :class="{ disabled: currentPage === 1 }">
+          <button class="page-link" @click="prevPage()" :disabled="currentPage === 1">Previous</button>
+        </li>
+        <template x-for="page in Array.from({length: Math.min(5, totalPages)}, (_, i) => Math.max(1, currentPage - 2) + i).filter(p => p <= totalPages)" :key="page">
+          <li class="page-item" :class="{ active: page === currentPage }">
+            <button class="page-link" @click="goToPage(page)" x-text="page"></button>
+          </li>
+        </template>
+        <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+          <button class="page-link" @click="nextPage()" :disabled="currentPage === totalPages">Next</button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</MainLayout>

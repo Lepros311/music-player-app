@@ -1,0 +1,117 @@
+/* public/styles.css */
+/* Initial responsive styles. Bootstrap makes it mobile-first. */
+
+/* Table layout fixes */
+.table th {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.sortable:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.table img {
+  display: block;
+  margin: 0 auto;
+}
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  z-index: 100;
+  transition: transform 0.3s ease; /* For mobile collapse if needed later */
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 110;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.sidebar-reveal {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 105;
+  padding: 2px 6px;
+  line-height: 1;
+  display: none;
+}
+
+.sidebar-collapsed .sidebar {
+  transform: translateX(-100%);
+}
+
+.sidebar-collapsed main {
+  margin-left: 0;
+}
+
+.sidebar-collapsed .sidebar-reveal {
+  display: inline-block;
+}
+
+/* Keep main content from sitting under the fixed sidebar */
+main {
+  margin-left: 250px;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+  .sidebar.show {
+    transform: translateX(0);
+  }
+  main {
+    margin-left: 0;
+  }
+}
+
+#playlist-list .list-group-item {
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+#playlist-list .list-group-item:hover,
+#playlist-list .list-group-item.active {
+  border-left-color: #0d6efd;
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.table th {
+  cursor: pointer; /* For sorting */
+}
+
+.table td {
+  vertical-align: middle;
+}
+
+.table img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+}
+
+.plyr {
+  --plyr-audio-control-spacing: 10px;
+}
+
+/* Hide player on small screens if needed, but keep for now */
+@media (max-width: 576px) {
+  .fixed-bottom {
+    padding: 0.5rem;
+  }
+}

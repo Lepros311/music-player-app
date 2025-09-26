@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "title": "Test Song 1",
+    "artist": "Test Artist",
+    "album": "Test Album",
+    "duration": "3:45",
+    "year": 2023,
+    "cover": "https://via.placeholder.com/40?text=?",
+    "path": "/music/test1.mp3"
+  },
+  {
+    "id": 2,
+    "title": "Test Song 2",
+    "artist": "Another Artist", 
+    "album": "Another Album",
+    "duration": "4:12",
+    "year": 2022,
+    "cover": "https://via.placeholder.com/40?text=?",
+    "path": "/music/test2.mp3"
+  },
+  {
+    "id": 3,
+    "title": "Test Song 3",
+    "artist": "Third Artist",
+    "album": "Third Album", 
+    "duration": "2:58",
+    "year": 2021,
+    "cover": "https://via.placeholder.com/40?text=?",
+    "path": "/music/test3.mp3"
+  }
+]

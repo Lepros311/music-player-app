@@ -1,0 +1,23 @@
+{
+  "name": "music-player-app",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "scan-music": "node scripts/scan-music.js"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "alpinejs": "^3.15.0",
+    "astro": "^5.13.9",
+    "music-metadata": "^11.9.0",
+    "plyr": "^3.8.3",
+    "typescript": "^5.9.2"
+  },
+  "devDependencies": {
+    "@astrojs/ts-plugin": "^1.10.4"
+  }
+}

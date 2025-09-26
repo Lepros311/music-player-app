@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "jsx": "preserve",
+    "jsxImportSource": "astro",
+    "skipLibCheck": true,
+    "allowJs": true,
+    "types": [], // --- Changed: Removed "astro/client" as it's included automatically ---
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "noImplicitAny": false,
+    "typeRoots": ["./types", "./node_modules/@types"] // --- Verified: Includes types/plyr.d.ts ---
+  }
+}
