@@ -125,10 +125,11 @@ export async function GET({ request }) {
     console.log(`📊 Filtered results: ${totalSongs} songs (showing ${startIndex + 1}-${Math.min(endIndex, totalSongs)})`);
     
     // Get songs for current page
-    const paginatedSongs = filteredSongs.slice(startIndex, endIndex).map((song, index) => ({
-      ...song,
-      id: startIndex + index + 1
-    }));
+  const paginatedSongs = filteredSongs.slice(startIndex, endIndex).map((song, index) => ({
+    ...song,
+    id: startIndex + index + 1,
+    cover: song.cover || '/default-cover.svg' // Ensure all songs have a cover
+  }));
     
     return new Response(JSON.stringify({
       songs: paginatedSongs,

@@ -5,17 +5,10 @@ import MainLayout from '../layouts/MainLayout.astro';
 
 <MainLayout title="Music Library">
   <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
-    <!-- Debug info -->
-    <div class="text-center mb-3" x-show="true">
+    <!-- Library Stats -->
+    <div class="text-center mb-3">
       Library: <span x-text="totalSongs || 0"></span> songs | Page <span x-text="currentPage || 1"></span> of <span x-text="totalPages || 1"></span>
-      <br>
-      Songs in array: <span x-text="songs.length || 0"></span> | Loading: <span x-text="isLoading"></span>
-      <br>
-      <button class="btn btn-sm btn-info" @click="testAPI()">Test API</button>
-      <button class="btn btn-sm btn-warning" @click="console.log('Search term:', searchTerm, 'Filters:', filters, 'Songs:', songs.length)">Debug Search</button>
-      <button class="btn btn-sm btn-success" @click="searchTerm = 'test'; applyFiltersAndSort()">Test Search</button>
     </div>
-    
 
     <!-- Search/Filter Bar: 4 cols on lg+, 2 cols on md, stacked on sm -->
     <div class="row g-3 mb-3">
@@ -87,15 +80,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           </tr>
         </thead>
         <tbody>
-          <!-- Loading state -->
-          <tr x-show="isLoading">
-            <td colspan="7" class="text-center py-4">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              <div class="mt-2">Loading songs...</div>
-            </td>
-          </tr>
+          <!-- Loading state removed - now using modal overlay -->
           
           <!-- Songs -->
           <template x-for="song in songs" :key="song.id">
@@ -107,7 +92,7 @@ import MainLayout from '../layouts/MainLayout.astro';
               <td x-text="song.year"></td>
               <td>
                 <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 4px;">
-                  <img :src="song.cover" :alt="song.title + ' cover'" width="40" height="40" style="object-fit: cover; border-radius: 4px; max-width: 100%; max-height: 100%;" 
+                  <img :src="song.cover || '/default-cover.svg'" :alt="song.title + ' cover'" width="40" height="40" style="object-fit: cover; border-radius: 4px; max-width: 100%; max-height: 100%;" 
                        @error="$el.style.display='none'; $el.nextElementSibling.style.display='flex';" />
                   <div style="display: none; font-size: 10px; color: #6c757d; text-align: center; padding: 2px;">?</div>
                 </div>
@@ -134,7 +119,7 @@ import MainLayout from '../layouts/MainLayout.astro';
     </div>
 
     <!-- Pagination -->
-    <nav aria-label="Songs pagination" x-show="totalPages >= 1">
+    <nav aria-label="Songs pagination" x-show="totalPages >= 1" class="mb-5 pb-4">
       <ul class="pagination justify-content-center">
         <li class="page-item" :class="{ disabled: currentPage === 1 }">
           <button class="page-link" @click="prevPage()" :disabled="currentPage === 1">Previous</button>
@@ -149,5 +134,6 @@ import MainLayout from '../layouts/MainLayout.astro';
         </li>
       </ul>
     </nav>
+
   </div>
 </MainLayout>

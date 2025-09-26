@@ -18,8 +18,6 @@ function registerAlpineComponents(Alpine) {
     totalPages: 1,
     totalSongs: 0,
     
-    // Loading state
-    isLoading: false,
 
     async init() {
       try {
@@ -34,7 +32,6 @@ function registerAlpineComponents(Alpine) {
     },
 
     async loadSongs() {
-      this.isLoading = true;
       try {
         // Build URL manually like the test button
         const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}&requestId=${Date.now()}`;
@@ -63,8 +60,6 @@ function registerAlpineComponents(Alpine) {
       } catch (error) {
         console.error("Error loading songs:", error);
         this.songs = [];
-      } finally {
-        this.isLoading = false;
       }
     },
 
@@ -77,7 +72,6 @@ function registerAlpineComponents(Alpine) {
       });
       
       this.currentPage = 1;
-      this.isLoading = true;
       
       try {
         const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}`;
@@ -98,8 +92,6 @@ function registerAlpineComponents(Alpine) {
       } catch (error) {
         console.error("Error in API call:", error);
         this.songs = [];
-      } finally {
-        this.isLoading = false;
       }
     },
 
@@ -127,6 +119,8 @@ function registerAlpineComponents(Alpine) {
       if (this.currentPage < this.totalPages) {
         this.currentPage++;
         await this.loadSongs();
+        console.log('🔄 Next page - scrolling to top');
+        this.scrollToTop();
       }
     },
 
@@ -134,6 +128,8 @@ function registerAlpineComponents(Alpine) {
       if (this.currentPage > 1) {
         this.currentPage--;
         await this.loadSongs();
+        console.log('🔄 Previous page - scrolling to top');
+        this.scrollToTop();
       }
     },
 
@@ -141,7 +137,40 @@ function registerAlpineComponents(Alpine) {
       if (page >= 1 && page <= this.totalPages) {
         this.currentPage = page;
         await this.loadSongs();
+        console.log('🔄 Go to page', page, '- scrolling to top');
+        this.scrollToTop();
       }
+    },
+
+    scrollToTop() {
+      console.log('📍 Current scroll position before:', window.pageYOffset);
+      
+      // Try multiple methods to ensure scrolling works
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      
+      // Force scroll with multiple attempts
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        console.log('📍 Scroll position after first attempt:', window.pageYOffset);
+      }, 10);
+      
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        console.log('📍 Scroll position after second attempt:', window.pageYOffset);
+      }, 50);
+      
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        console.log('📍 Final scroll position:', window.pageYOffset);
+      }, 100);
     },
 
     async testAPI() {

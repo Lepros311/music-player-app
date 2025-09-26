@@ -1,56 +1,42 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const INPUT_FILE = 'public/songs.json';
-const OUTPUT_FILE = 'public/songs.json';
-const BACKUP_FILE = 'public/songs-backup.json';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-console.log('🔧 Optimizing songs.json for web performance...');
+const INPUT_FILE = path.join(__dirname, '..', 'public', 'songs.json');
+const OUTPUT_FILE = path.join(__dirname, '..', 'public', 'songs-optimized.json');
+
+console.log('🚀 Starting songs optimization...');
 
 try {
-  // Backup the original file
-  console.log('💾 Creating backup...');
-  fs.copyFileSync(INPUT_FILE, BACKUP_FILE);
+  // Read the large songs.json file
+  console.log('📖 Reading songs.json...');
+  const data = fs.readFileSync(INPUT_FILE, 'utf8');
+  const songs = JSON.parse(data);
   
-  // Get file size
-  const stats = fs.statSync(INPUT_FILE);
-  const fileSizeMB = (stats.size / 1024 / 1024).toFixed(2);
-  console.log(`📁 Original file size: ${fileSizeMB} MB`);
+  console.log(`📊 Found ${songs.length} songs`);
   
-  // Read and parse the JSON
-  console.log('📖 Reading songs...');
-  const songs = JSON.parse(fs.readFileSync(INPUT_FILE, 'utf8'));
-  console.log(`✅ Loaded ${songs.length} songs`);
-  
-  // Optimize the data structure - remove unnecessary fields
-  console.log('⚡ Optimizing data structure...');
+  // Optimize each song by removing base64 cover data
   const optimizedSongs = songs.map(song => ({
-    id: song.id,
-    title: song.title,
-    artist: song.artist,
-    album: song.album,
-    duration: song.duration,
-    year: song.year,
-    cover: song.cover,
-    path: song.path
-    // Remove: originalPath, processingTime, hasEmbeddedCover
+    ...song,
+    cover: song.cover ? '/default-cover.png' : null // Replace base64 with placeholder
   }));
   
   // Write optimized version
-  console.log('💾 Writing optimized songs.json...');
-  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(optimizedSongs, null, 0)); // No pretty printing to save space
+  console.log('💾 Writing optimized songs...');
+  fs.writeFileSync(OUTPUT_FILE, JSON.stringify(optimizedSongs, null, 2));
   
-  // Check new file size
-  const newStats = fs.statSync(OUTPUT_FILE);
-  const newFileSizeMB = (newStats.size / 1024 / 1024).toFixed(2);
-  const reduction = ((stats.size - newStats.size) / stats.size * 100).toFixed(1);
+  // Check file sizes
+  const originalSize = fs.statSync(INPUT_FILE).size;
+  const optimizedSize = fs.statSync(OUTPUT_FILE).size;
   
   console.log(`✅ Optimization complete!`);
-  console.log(`📁 New file size: ${newFileSizeMB} MB (${reduction}% reduction)`);
-  console.log(`🎵 Songs: ${optimizedSongs.length}`);
-  console.log(`💾 Backup saved to: ${BACKUP_FILE}`);
+  console.log(`📁 Original size: ${(originalSize / 1024 / 1024).toFixed(2)} MB`);
+  console.log(`📁 Optimized size: ${(optimizedSize / 1024 / 1024).toFixed(2)} MB`);
+  console.log(`📉 Size reduction: ${((originalSize - optimizedSize) / originalSize * 100).toFixed(1)}%`);
   
 } catch (error) {
-  console.error('❌ Error:', error.message);
-  process.exit(1);
+  console.error('❌ Error optimizing songs:', error);
 }
