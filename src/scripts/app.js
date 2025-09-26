@@ -1,5 +1,6 @@
 // src/scripts/app.js
-document.addEventListener("alpine:init", () => {
+function registerAlpineComponents(Alpine) {
+  console.log("🔧 Registering Alpine components...");
   Alpine.data("library", () => ({
     searchTerm: "",
     filters: {
@@ -8,52 +9,154 @@ document.addEventListener("alpine:init", () => {
       year: "",
     },
     songs: [],
-    filteredSongs: [],
-    sortBy: "title",
+    sortBy: "artist",
     sortDir: "asc",
+    
+    // Pagination
+    currentPage: 1,
+    itemsPerPage: 50,
+    totalPages: 1,
+    totalSongs: 0,
+    
+    // Loading state
+    isLoading: false,
 
     async init() {
       try {
-        const response = await fetch("/songs.json");
-        if (!response.ok) {
-          throw new Error("Failed to fetch songs.json");
-        }
-        this.songs = await response.json();
-        this.filteredSongs = [...this.songs];
-        console.log("Library initialized:", this.filteredSongs);
+        console.log("🚀 Library component init() called!");
+        console.log("🔍 Alpine.js component initialized");
+        // Load songs initially
+        await this.loadSongs();
+        console.log("Library initialized with songs loaded");
       } catch (error) {
         console.error("Error loading songs:", error);
       }
     },
 
-    applyFiltersAndSort() {
-      let filtered = [...this.songs];
-      if (this.searchTerm) {
-        const search = this.searchTerm.toLowerCase();
-        filtered = filtered.filter(song => song.title.toLowerCase().includes(search) || song.artist.toLowerCase().includes(search) || song.album.toLowerCase().includes(search));
-      }
-      if (this.filters.artist) {
-        filtered = filtered.filter(song => song.artist.toLowerCase().includes(this.filters.artist.toLowerCase()));
-      }
-      if (this.filters.album) {
-        filtered = filtered.filter(song => song.album.toLowerCase().includes(this.filters.album.toLowerCase()));
-      }
-      if (this.filters.year) {
-        filtered = filtered.filter(song => song.year.toString().includes(this.filters.year));
-      }
-      filtered.sort((a, b) => {
-        const key = this.sortBy;
-        const dir = this.sortDir === "asc" ? 1 : -1;
-        if (key === "duration") {
-          const timeToSeconds = time => {
-            const [minutes, seconds] = time.split(":").map(Number);
-            return minutes * 60 + seconds;
-          };
-          return timeToSeconds(a[key]) > timeToSeconds(b[key]) ? dir : -dir;
+    async loadSongs() {
+      this.isLoading = true;
+      try {
+        // Build URL manually like the test button
+        const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}&requestId=${Date.now()}`;
+        
+        console.log('🚀 Sending API request with URL:', url);
+        console.log('🔍 Raw parameters being sent:', {
+          search: this.searchTerm,
+          artist: this.filters.artist,
+          album: this.filters.album,
+          year: this.filters.year
+        });
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Failed to fetch songs from API");
         }
-        return a[key] > b[key] ? dir : -dir;
+        
+        const data = await response.json();
+        this.songs = data.songs;
+        
+        // Update pagination info
+        this.totalPages = data.pagination.totalPages;
+        this.totalSongs = data.pagination.totalSongs;
+        
+        console.log(`Loaded ${this.songs.length} songs (page ${this.currentPage} of ${this.totalPages})`);
+      } catch (error) {
+        console.error("Error loading songs:", error);
+        this.songs = [];
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async applyFiltersAndSort() {
+      console.log('🔍 Applying filters:', { 
+        searchTerm: this.searchTerm, 
+        artist: this.filters.artist,
+        album: this.filters.album,
+        year: this.filters.year
       });
-      this.filteredSongs = filtered;
+      
+      this.currentPage = 1;
+      this.isLoading = true;
+      
+      try {
+        const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}`;
+        
+        console.log('🚀 API call URL:', url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error("Failed to fetch songs from API");
+        }
+        
+        const data = await response.json();
+        this.songs = data.songs;
+        this.totalSongs = data.pagination.totalSongs;
+        this.totalPages = data.pagination.totalPages;
+        
+        console.log(`✅ Loaded ${this.songs.length} songs (${this.totalSongs} total)`);
+      } catch (error) {
+        console.error("Error in API call:", error);
+        this.songs = [];
+      } finally {
+        this.isLoading = false;
+      }
+    },
+
+    async sort(column) {
+      if (this.sortBy === column) {
+        this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        this.sortBy = column;
+        this.sortDir = 'asc';
+      }
+      this.currentPage = 1;
+      await this.loadSongs();
+    },
+
+    updatePagination() {
+      // Pagination is now handled by the API
+      // This method is kept for compatibility but does nothing
+    },
+
+    get paginatedSongs() {
+      return this.songs; // API already returns paginated results
+    },
+
+    async nextPage() {
+      if (this.currentPage < this.totalPages) {
+        this.currentPage++;
+        await this.loadSongs();
+      }
+    },
+
+    async prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--;
+        await this.loadSongs();
+      }
+    },
+
+    async goToPage(page) {
+      if (page >= 1 && page <= this.totalPages) {
+        this.currentPage = page;
+        await this.loadSongs();
+      }
+    },
+
+    async testAPI() {
+      console.log("🧪 Testing API directly...");
+      try {
+        const response = await fetch('/api/songs?page=1&limit=50&search=&artist=Test&album=&year=&sortBy=artist&sortDir=asc&requestId=test123');
+        const data = await response.json();
+        console.log("🧪 API Response:", data);
+        this.songs = data.songs;
+        this.totalSongs = data.pagination.totalSongs;
+        this.totalPages = data.pagination.totalPages;
+        console.log(`🧪 Loaded ${data.songs.length} songs from test API call`);
+      } catch (error) {
+        console.error("🧪 Test API Error:", error);
+      }
     },
   }));
 
@@ -68,22 +171,47 @@ document.addEventListener("alpine:init", () => {
       localStorage.setItem("playlists", JSON.stringify(this.playlists));
     },
   }));
+}
+
+// Register components when Alpine is ready
+document.addEventListener("alpine:init", () => {
+  console.log("🔧 Alpine init event fired, registering components...");
+  console.log("🔧 Alpine object:", window.Alpine);
+  registerAlpineComponents(window.Alpine);
+  console.log("✅ Components registered successfully");
 });
+
+// Also try to register immediately if Alpine is already available
+if (window.Alpine) {
+  console.log("🔧 Alpine already available, registering components immediately...");
+  registerAlpineComponents(window.Alpine);
+}
 
 // Initialize Plyr
 document.addEventListener("DOMContentLoaded", () => {
   window.player = new Plyr("#player", {
     controls: ["play", "progress", "current-time", "mute", "volume"],
   });
+
+  // Sidebar toggle persistence
+  const collapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+  document.body.classList.toggle('sidebar-collapsed', collapsed);
 });
 
 // Playlist button handler
 window.createNewPlaylist = function () {
   const name = prompt("Enter playlist name:");
   if (name) {
-    const playlistList = Alpine.$data(document.getElementById("playlist-list"));
-    playlistList.addPlaylist(name);
+    const listEl = document.getElementById("playlist-list");
+    const comp = Alpine.$data(listEl) || Alpine.$data(listEl.closest('[x-data]'));
+    if (comp && typeof comp.addPlaylist === 'function') {
+      comp.addPlaylist(name);
+    }
   }
 };
 
-Alpine.start();
+// Global sidebar toggle
+window.toggleSidebar = function () {
+  const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
+  localStorage.setItem('sidebar-collapsed', String(isCollapsed));
+};

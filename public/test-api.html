@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testAPI()">Test API with artist=311</button>
+    <div id="result"></div>
+
+    <script>
+        async function testAPI() {
+            try {
+                const url = '/api/songs?page=1&limit=50&search=&artist=311&album=&year=&sortBy=artist&sortDir=asc';
+                console.log('Testing URL:', url);
+                
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                console.log('API Response:', data);
+                document.getElementById('result').innerHTML = 
+                    '<h2>Results:</h2>' +
+                    '<p>Total songs: ' + data.pagination.totalSongs + '</p>' +
+                    '<p>Returned songs: ' + data.songs.length + '</p>' +
+                    '<p>First few songs: ' + data.songs.slice(0, 3).map(s => s.title).join(', ') + '</p>';
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = '<p>Error: ' + error.message + '</p>';
+            }
+        }
+    </script>
+</body>
+</html>

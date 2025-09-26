@@ -6,26 +6,34 @@ import MainLayout from '../layouts/MainLayout.astro';
 <MainLayout title="Music Library">
   <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
     <!-- Debug info -->
-    <div class="text-center mb-3" x-show="true">Library: <span x-text="totalSongs"></span> songs | Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span></div>
+    <div class="text-center mb-3" x-show="true">
+      Library: <span x-text="totalSongs || 0"></span> songs | Page <span x-text="currentPage || 1"></span> of <span x-text="totalPages || 1"></span>
+      <br>
+      Songs in array: <span x-text="songs.length || 0"></span> | Loading: <span x-text="isLoading"></span>
+      <br>
+      <button class="btn btn-sm btn-info" @click="testAPI()">Test API</button>
+      <button class="btn btn-sm btn-warning" @click="console.log('Search term:', searchTerm, 'Filters:', filters, 'Songs:', songs.length)">Debug Search</button>
+      <button class="btn btn-sm btn-success" @click="searchTerm = 'test'; applyFiltersAndSort()">Test Search</button>
+    </div>
     
 
     <!-- Search/Filter Bar: 4 cols on lg+, 2 cols on md, stacked on sm -->
     <div class="row g-3 mb-3">
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Search All</label>
-        <input type="text" class="form-control" placeholder="Search songs, artists, albums..." x-model="searchTerm" @input.debounce.500ms="applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Search songs, artists, albums..." x-model="searchTerm" @input="console.log('Search input changed:', searchTerm); applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Artist</label>
-        <input type="text" class="form-control" placeholder="Enter artist name..." x-model="filters.artist" @input.debounce.500ms="applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Enter artist name..." x-model="filters.artist" @input="console.log('Artist input changed:', filters.artist, 'All filters:', filters); applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Album</label>
-        <input type="text" class="form-control" placeholder="Enter album name..." x-model="filters.album" @input.debounce.500ms="applyFiltersAndSort()" />
+        <input type="text" class="form-control" placeholder="Enter album name..." x-model="filters.album" @input="console.log('Album input changed:', filters.album); applyFiltersAndSort()" />
       </div>
       <div class="col-lg-3 col-md-6">
         <label class="form-label">Filter by Year</label>
-        <input type="number" class="form-control" placeholder="Enter year..." x-model="filters.year" @input.debounce.500ms="applyFiltersAndSort()" />
+        <input type="number" class="form-control" placeholder="Enter year..." x-model="filters.year" @input="console.log('Year input changed:', filters.year); applyFiltersAndSort()" />
       </div>
     </div>
 
@@ -90,7 +98,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           </tr>
           
           <!-- Songs -->
-          <template x-for="song in paginatedSongs" :key="song.id">
+          <template x-for="song in songs" :key="song.id">
             <tr>
               <td x-text="song.title"></td>
               <td x-text="song.artist"></td>

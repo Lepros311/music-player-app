@@ -4,6 +4,7 @@
 import { defineConfig } from "astro/config";
 
 export default defineConfig({
+  output: 'server', // --- Changed: Enable server-side rendering for API routes ---
   server: {
     port: 4321,
   },

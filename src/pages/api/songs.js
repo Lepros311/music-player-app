@@ -1,18 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
-// Cache the songs data to avoid reading the file repeatedly
+// Cache the songs data
 let songsCache = null;
 let lastModified = null;
 
-// Force cache clear on startup
-songsCache = null;
-lastModified = null;
-
 function loadSongs() {
-  const songsPath = path.join(process.cwd(), 'public', 'songs-test.json');
+  const songsPath = path.join(process.cwd(), 'public', 'songs.json');
   
-  // Check if file exists and get modification time
   if (!fs.existsSync(songsPath)) {
     return [];
   }
@@ -20,15 +15,12 @@ function loadSongs() {
   const stats = fs.statSync(songsPath);
   const currentModified = stats.mtime.getTime();
   
-  // Reload if file has been modified or cache is empty
   if (!songsCache || lastModified !== currentModified) {
     try {
       const data = fs.readFileSync(songsPath, 'utf8');
       songsCache = JSON.parse(data);
       lastModified = currentModified;
       console.log(`Loaded ${songsCache.length} songs from cache`);
-      console.log(`First song:`, songsCache[0]?.title || 'No songs');
-      console.log(`Sample cover:`, songsCache[0]?.cover || 'No cover');
     } catch (error) {
       console.error('Error loading songs:', error);
       return [];
@@ -40,10 +32,16 @@ function loadSongs() {
 
 export async function GET({ request }) {
   try {
-    const songs = loadSongs();
-    
     // Parse URL manually from request
     const url = new URL(request.url);
+    console.log('🎵 API called with URL:', url.href);
+    console.log('🔍 Search params:', url.searchParams.toString());
+    console.log('🔍 URL search:', url.search);
+    console.log('🔍 URL searchParams entries:', Array.from(url.searchParams.entries()));
+    
+    const songs = loadSongs();
+    
+    // Get parameters from URL
     const page = parseInt(url.searchParams.get('page')) || 1;
     const limit = parseInt(url.searchParams.get('limit')) || 50;
     const search = url.searchParams.get('search') || '';
@@ -53,15 +51,7 @@ export async function GET({ request }) {
     const sortBy = url.searchParams.get('sortBy') || 'artist';
     const sortDir = url.searchParams.get('sortDir') || 'asc';
     
-    const requestId = url.searchParams.get('requestId') || 'unknown';
-    console.log('🎵 API called with params:', { page, limit, search, artist, album, year, sortBy, sortDir, requestId });
-    console.log('🔍 Raw URL:', request.url);
-    console.log('🔍 Individual params:', {
-      search: url.searchParams.get('search'),
-      artist: url.searchParams.get('artist'),
-      album: url.searchParams.get('album'),
-      year: url.searchParams.get('year')
-    });
+    console.log('🎵 Parsed params:', { page, limit, search, artist, album, year, sortBy, sortDir });
     
     // Apply filters
     let filteredSongs = [...songs];
@@ -87,15 +77,19 @@ export async function GET({ request }) {
     }
     
     if (album) {
+      console.log(`🔍 Applying album filter: "${album}"`);
       filteredSongs = filteredSongs.filter(song => 
         song.album.toLowerCase().includes(album.toLowerCase())
       );
+      console.log(`🔍 After album filter: ${filteredSongs.length} songs`);
     }
     
     if (year) {
+      console.log(`🔍 Applying year filter: "${year}"`);
       filteredSongs = filteredSongs.filter(song => 
         song.year.toString().includes(year)
       );
+      console.log(`🔍 After year filter: ${filteredSongs.length} songs`);
     }
     
     // Apply sorting
@@ -103,7 +97,6 @@ export async function GET({ request }) {
       let aVal = a[sortBy];
       let bVal = b[sortBy];
       
-      // Handle duration sorting (convert to seconds)
       if (sortBy === 'duration') {
         const timeToSeconds = time => {
           const [minutes, seconds] = time.split(':').map(Number);
@@ -113,34 +106,11 @@ export async function GET({ request }) {
         bVal = timeToSeconds(bVal);
       }
       
-      // Handle string comparison
       if (typeof aVal === 'string') {
         aVal = aVal.toLowerCase();
         bVal = bVal.toLowerCase();
       }
       
-      // For artist sorting, group by album and maintain track order
-      if (sortBy === 'artist') {
-        // First sort by artist
-        if (aVal !== bVal) {
-          return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-        }
-        // Then by album
-        const albumA = a.album.toLowerCase();
-        const albumB = b.album.toLowerCase();
-        if (albumA !== albumB) {
-          return sortDir === 'asc' ? albumA.localeCompare(albumB) : albumB.localeCompare(albumA);
-        }
-        // Then by track number if available, otherwise by title
-        const trackA = a.track || 0;
-        const trackB = b.track || 0;
-        if (trackA !== trackB) {
-          return sortDir === 'asc' ? trackA - trackB : trackB - trackA;
-        }
-        return sortDir === 'asc' ? a.title.toLowerCase().localeCompare(b.title.toLowerCase()) : b.title.toLowerCase().localeCompare(a.title.toLowerCase());
-      }
-      
-      // Default sorting
       if (aVal > bVal) return sortDir === 'asc' ? 1 : -1;
       if (aVal < bVal) return sortDir === 'asc' ? -1 : 1;
       return 0;
@@ -154,13 +124,12 @@ export async function GET({ request }) {
     
     console.log(`📊 Filtered results: ${totalSongs} songs (showing ${startIndex + 1}-${Math.min(endIndex, totalSongs)})`);
     
-    // Get songs for current page and ensure unique IDs
+    // Get songs for current page
     const paginatedSongs = filteredSongs.slice(startIndex, endIndex).map((song, index) => ({
       ...song,
-      id: startIndex + index + 1 // Ensure unique IDs for pagination
+      id: startIndex + index + 1
     }));
     
-    // Return response
     return new Response(JSON.stringify({
       songs: paginatedSongs,
       pagination: {
@@ -175,7 +144,7 @@ export async function GET({ request }) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate' // Disable caching
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     });
     

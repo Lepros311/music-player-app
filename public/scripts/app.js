@@ -1,5 +1,6 @@
 // src/scripts/app.js
 function registerAlpineComponents(Alpine) {
+  console.log("🔧 Registering Alpine components...");
   Alpine.data("library", () => ({
     searchTerm: "",
     filters: {
@@ -22,7 +23,8 @@ function registerAlpineComponents(Alpine) {
 
     async init() {
       try {
-        console.log("🚀 Initializing library...");
+        console.log("🚀 Library component init() called!");
+        console.log("🔍 Alpine.js component initialized");
         // Load songs initially
         await this.loadSongs();
         console.log("Library initialized with songs loaded");
@@ -38,6 +40,12 @@ function registerAlpineComponents(Alpine) {
         const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}&requestId=${Date.now()}`;
         
         console.log('🚀 Sending API request with URL:', url);
+        console.log('🔍 Raw parameters being sent:', {
+          search: this.searchTerm,
+          artist: this.filters.artist,
+          album: this.filters.album,
+          year: this.filters.year
+        });
         
         const response = await fetch(url);
         if (!response.ok) {
@@ -69,12 +77,12 @@ function registerAlpineComponents(Alpine) {
       });
       
       this.currentPage = 1;
+      this.isLoading = true;
       
-      // Call API directly like the test button
       try {
-        const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}&requestId=${Date.now()}`;
+        const url = `/api/songs?page=${this.currentPage}&limit=${this.itemsPerPage}&search=${encodeURIComponent(this.searchTerm)}&artist=${encodeURIComponent(this.filters.artist)}&album=${encodeURIComponent(this.filters.album)}&year=${encodeURIComponent(this.filters.year)}&sortBy=${this.sortBy}&sortDir=${this.sortDir}`;
         
-        console.log('🚀 Direct API call with URL:', url);
+        console.log('🚀 API call URL:', url);
         
         const response = await fetch(url);
         if (!response.ok) {
@@ -86,10 +94,12 @@ function registerAlpineComponents(Alpine) {
         this.totalSongs = data.pagination.totalSongs;
         this.totalPages = data.pagination.totalPages;
         
-        console.log(`✅ Loaded ${this.songs.length} songs from direct API call`);
+        console.log(`✅ Loaded ${this.songs.length} songs (${this.totalSongs} total)`);
       } catch (error) {
-        console.error("Error in direct API call:", error);
+        console.error("Error in API call:", error);
         this.songs = [];
+      } finally {
+        this.isLoading = false;
       }
     },
 
@@ -163,13 +173,18 @@ function registerAlpineComponents(Alpine) {
   }));
 }
 
-// Ensure we register components regardless of Alpine load order
-if (window.Alpine) {
+// Register components when Alpine is ready
+document.addEventListener("alpine:init", () => {
+  console.log("🔧 Alpine init event fired, registering components...");
+  console.log("🔧 Alpine object:", window.Alpine);
   registerAlpineComponents(window.Alpine);
-} else {
-  document.addEventListener("alpine:init", () => {
-    registerAlpineComponents(window.Alpine);
-  });
+  console.log("✅ Components registered successfully");
+});
+
+// Also try to register immediately if Alpine is already available
+if (window.Alpine) {
+  console.log("🔧 Alpine already available, registering components immediately...");
+  registerAlpineComponents(window.Alpine);
 }
 
 // Initialize Plyr
@@ -200,6 +215,3 @@ window.toggleSidebar = function () {
   const isCollapsed = document.body.classList.toggle('sidebar-collapsed');
   localStorage.setItem('sidebar-collapsed', String(isCollapsed));
 };
-
-
-
