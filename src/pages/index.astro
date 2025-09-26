@@ -104,15 +104,17 @@ import MainLayout from '../layouts/MainLayout.astro';
       </table>
     </div>
 
-    <!-- Load More Button -->
-    <div class="text-center mb-5 pb-4" x-show="hasMoreSongs">
-      <button 
-        class="btn btn-outline-primary btn-lg" 
-        @click="loadMore()" 
-        :disabled="isLoadingMore"
-        x-text="isLoadingMore ? 'Loading...' : `Load More (${remainingSongs} remaining)`">
-      </button>
-    </div>
+                <!-- Lazy Loading Sentinel -->
+                <div id="load-more-sentinel" class="text-center mb-5 pb-4" x-show="hasMoreSongs">
+                  <div class="d-flex justify-content-center align-items-center" style="height: 60px;">
+                    <div x-show="isLoadingMore" class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <div x-show="!isLoadingMore" class="text-muted">
+                      <i class="fas fa-arrow-down"></i> Scroll to load more songs
+                    </div>
+                  </div>
+                </div>
 
   </div>
 </MainLayout>

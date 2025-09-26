@@ -42,10 +42,11 @@ document.addEventListener("alpine:init", () => {
     sortBy: "artist",
     sortDir: "asc",
     
-    // Lazy loading
-    itemsPerPage: 50,
-    currentDisplayCount: 50,
-    isLoadingMore: false,
+                // Lazy loading
+                itemsPerPage: 50,
+                currentDisplayCount: 50,
+                isLoadingMore: false,
+                loadMoreObserver: null,
     
     // Stats
     totalSongs: 0,
@@ -103,17 +104,20 @@ document.addEventListener("alpine:init", () => {
     },
 
 
-    async init() {
-      try {
-        console.log("🚀 Library component init() called!");
-        console.log("🔍 Alpine.js component initialized");
-        // Load all songs initially
-        await this.loadAllSongs();
-        console.log("Library initialized with songs loaded");
-      } catch (error) {
-        console.error("Error initializing library:", error);
-      }
-    },
+                async init() {
+                  try {
+                    console.log("🚀 Library component init() called!");
+                    console.log("🔍 Alpine.js component initialized");
+                    // Load all songs initially
+                    await this.loadAllSongs();
+                    console.log("Library initialized with songs loaded");
+                    
+                    // Set up automatic lazy loading
+                    this.setupLazyLoading();
+                  } catch (error) {
+                    console.error("Error initializing library:", error);
+                  }
+                },
 
     async loadAllSongs() {
       try {
@@ -222,27 +226,51 @@ document.addEventListener("alpine:init", () => {
       this.applyFiltersAndSort();
     },
 
-    loadMore() {
-      if (this.isLoadingMore || this.displayedSongs.length >= this.filteredSongs.length) {
-        return;
-      }
-      
-      this.isLoadingMore = true;
-      
-      // Simulate a small delay for smooth loading
-      setTimeout(() => {
-        const newCount = Math.min(
-          this.currentDisplayCount + this.itemsPerPage,
-          this.filteredSongs.length
-        );
-        
-        this.currentDisplayCount = newCount;
-        this.displayedSongs = this.filteredSongs.slice(0, newCount);
-        this.isLoadingMore = false;
-        
-        console.log(`📄 Loaded more songs, now showing ${this.displayedSongs.length} of ${this.filteredSongs.length}`);
-      }, 100);
-    },
+                setupLazyLoading() {
+                  // Create a sentinel element at the bottom of the page
+                  this.$nextTick(() => {
+                    const sentinel = document.getElementById('load-more-sentinel');
+                    if (sentinel && 'IntersectionObserver' in window) {
+                      this.loadMoreObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                          if (entry.isIntersecting && this.hasMoreSongs && !this.isLoadingMore) {
+                            console.log('🔄 Auto-loading more songs...');
+                            this.loadMore();
+                          }
+                        });
+                      }, {
+                        root: null,
+                        rootMargin: '100px', // Start loading when 100px away from the sentinel
+                        threshold: 0.1
+                      });
+                      
+                      this.loadMoreObserver.observe(sentinel);
+                      console.log('👀 Lazy loading observer set up');
+                    }
+                  });
+                },
+
+                loadMore() {
+                  if (this.isLoadingMore || this.displayedSongs.length >= this.filteredSongs.length) {
+                    return;
+                  }
+                  
+                  this.isLoadingMore = true;
+                  
+                  // Simulate a small delay for smooth loading
+                  setTimeout(() => {
+                    const newCount = Math.min(
+                      this.currentDisplayCount + this.itemsPerPage,
+                      this.filteredSongs.length
+                    );
+                    
+                    this.currentDisplayCount = newCount;
+                    this.displayedSongs = this.filteredSongs.slice(0, newCount);
+                    this.isLoadingMore = false;
+                    
+                    console.log(`📄 Loaded more songs, now showing ${this.displayedSongs.length} of ${this.filteredSongs.length}`);
+                  }, 100);
+                },
 
     get hasMoreSongs() {
       return this.displayedSongs.length < this.filteredSongs.length;
