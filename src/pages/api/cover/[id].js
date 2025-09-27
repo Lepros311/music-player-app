@@ -47,7 +47,7 @@ export async function GET({ params }) {
     
     const database = getDatabase();
     
-    // Get the binary cover data for the specific song
+    // Get the binary cover data for the specific song (optimized query)
     const song = database.prepare('SELECT cover_binary FROM songs WHERE id = ?').get(parseInt(songId));
     
     console.log(`Database query result for ID ${songId}:`, {

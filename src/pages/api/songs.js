@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import fs from 'fs';
 
 let db = null;
 
@@ -40,25 +41,23 @@ function getDatabase() {
   return db;
 }
 
-export async function GET({ request }) {
+export async function GET() {
   try {
-    console.log('🎵 API called - returning all songs from SQLite database');
-    console.log('Current working directory:', process.cwd());
-    console.log('Import meta URL:', import.meta.url);
+    console.log("🎵 API called - returning all songs");
     
     const database = getDatabase();
     
-    // Test database connection with a simple query
-    console.log('Testing database connection...');
-    const testResult = database.prepare('SELECT COUNT(*) as count FROM songs').get();
-    console.log('Database test query result:', testResult);
+    // Test database connection
+    console.log("Testing database connection...");
+    const testResult = database.prepare("SELECT COUNT(*) as count FROM songs").get();
+    console.log("Database test query result:", testResult);
     
-    // Get all songs from SQLite database
-    console.log('Fetching songs from database...');
-    const songs = database.prepare('SELECT * FROM songs ORDER BY artist, album, track, title').all();
+    // Get all songs from SQLite database (optimized query - only select needed columns)
+    console.log("Fetching songs from database...");
+    const songs = database.prepare('SELECT id, title, artist, album, year, duration, track, path, created_at, cover FROM songs ORDER BY artist, album, track, title').all();
     console.log(`Found ${songs.length} songs in database`);
     
-    // Add covers - use API endpoints for all covers
+    // Map songs to include cover URLs and exclude large cover data
     let coversWithApi = 0;
     let coversExcluded = 0;
     
@@ -84,34 +83,35 @@ export async function GET({ request }) {
     
     console.log(`Cover stats: ${coversWithApi} covers using API, ${coversExcluded} covers excluded`);
     
-    console.log(`📊 Returning ${allSongs.length} songs from SQLite database`);
+    // Create response object
+    const response = {
+      songs: allSongs,
+      totalSongs: allSongs.length
+    };
     
+    // Try to stringify the response to check for serialization issues
     try {
-      const responseData = {
-        songs: allSongs,
-        totalSongs: allSongs.length
-      };
-      
-      const jsonString = JSON.stringify(responseData);
+      const jsonString = JSON.stringify(response);
       console.log(`JSON response size: ${jsonString.length} characters`);
-      
-      return new Response(jsonString, {
-        status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache, no-store, must-revalidate'
-        }
-      });
-    } catch (jsonError) {
-      console.error('JSON serialization error:', jsonError);
-      throw new Error(`JSON serialization failed: ${jsonError.message}`);
+    } catch (stringifyError) {
+      console.error("JSON stringify error:", stringifyError.message);
+      throw new Error(`JSON serialization failed: ${stringifyError.message}`);
     }
-
+    
+    return new Response(JSON.stringify(response), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
+    
   } catch (error) {
-    console.error('API Error:', error);
-    console.error('Error stack:', error.stack);
+    console.error("Error in songs API:", error);
     return new Response(JSON.stringify({
-      error: 'Failed to load songs',
+      error: "Failed to load songs",
       errorDetails: error.message,
       songs: [],
       totalSongs: 0

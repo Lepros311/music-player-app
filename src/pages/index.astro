@@ -3,13 +3,61 @@
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
+<style>
+  /* Loading modal styles */
+  .modal.show {
+    display: block !important;
+  }
+  
+  .modal-backdrop {
+    background-color: rgba(0,0,0,0.8);
+  }
+  
+  /* Smooth transitions */
+  [x-cloak] {
+    display: none !important;
+  }
+  
+  /* Fade transitions */
+  .fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+  }
+  .fade-enter, .fade-leave-to {
+    opacity: 0;
+  }
+</style>
+
         <MainLayout title="Music Library">
           <div id="top"></div>
-          <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }">
-    <!-- Library Stats -->
-    <div class="text-center mb-3">
-      Library: <span x-text="totalSongs || 0"></span> songs | Showing <span x-text="displayedSongs.length || 0"></span> of <span x-text="filteredSongs.length || 0"></span> filtered results
+          <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }" x-cloak>
+    
+    <!-- Loading Modal -->
+    <div x-show="allSongs.length === 0" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.8);" x-transition:enter="fade" x-transition:leave="fade" x-bind:style="allSongs.length > 0 ? 'display: none !important;' : ''">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body text-center py-5">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+              <span class="visually-hidden">Loading...</span>
+            </div>
+            <h5 class="mb-2">Loading Music Library</h5>
+            <p class="text-muted mb-0">Please wait while we load your songs and album covers...</p>
+            <div class="progress mt-3" style="height: 4px;">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Main Content (disabled while loading) -->
+    <div x-show="allSongs.length > 0" x-transition:enter="fade" x-transition:leave="fade">
+      <!-- Library Stats -->
+      <div class="text-center mb-3">
+        Library: <span x-text="totalSongs || 0"></span> songs
+        <span x-show="(searchTerm && searchTerm.trim()) || (filters.artist && filters.artist.trim()) || (filters.album && filters.album.trim()) || (filters.year && filters.year.toString().trim())" class="ms-2">
+          | Showing <span x-text="displayedSongs.length || 0"></span> filtered results
+        </span>
+      </div>
 
     <!-- Search/Filter Bar: 4 cols on lg+, 2 cols on md, stacked on sm -->
     <div class="row g-3 mb-3">
@@ -75,7 +123,15 @@ import MainLayout from '../layouts/MainLayout.astro';
           </tr>
         </thead>
         <tbody>
-          <!-- Loading state removed - now using modal overlay -->
+          <!-- Loading state -->
+          <tr x-show="allSongs.length === 0">
+            <td colspan="6" class="text-center py-5">
+              <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              <p class="mt-3 text-muted">Loading your music library...</p>
+            </td>
+          </tr>
           
           <!-- Songs -->
           <template x-for="song in displayedSongs" :key="song.id">
@@ -94,7 +150,7 @@ import MainLayout from '../layouts/MainLayout.astro';
           </template>
           
           <!-- No songs state -->
-          <tr x-show="displayedSongs.length === 0">
+          <tr x-show="allSongs.length > 0 && displayedSongs.length === 0">
             <td colspan="6" class="text-center py-4 text-muted">
               No songs found. Try adjusting your search or filters.
             </td>
@@ -126,6 +182,7 @@ import MainLayout from '../layouts/MainLayout.astro';
             >
               <i class="fas fa-arrow-up"></i>
             </a>
+    </div> <!-- End Main Content -->
 
               </div>
 </MainLayout>
