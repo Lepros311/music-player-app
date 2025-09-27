@@ -58,22 +58,31 @@ export async function GET({ request }) {
     const songs = database.prepare('SELECT * FROM songs ORDER BY artist, album, track, title').all();
     console.log(`Found ${songs.length} songs in database`);
     
-    // Add default covers and IDs, but limit cover data size
+    // Add covers - use API endpoints for all covers
+    let coversWithApi = 0;
+    let coversExcluded = 0;
+    
     const allSongs = songs.map((song, index) => {
-      let cover = song.cover || '/default-cover.svg';
+      let cover = '/default-cover.svg';
       
-      // If cover is a base64 data URL and too large, truncate it or use default
-      if (cover.startsWith('data:') && cover.length > 100000) { // 100KB limit
-        console.log(`Cover for ${song.title} is too large (${cover.length} chars), using default`);
-        cover = '/default-cover.svg';
+      // If song has a cover, use API endpoint
+      if (song.cover && song.cover.startsWith('data:')) {
+        cover = `/api/cover/${song.id}`;
+        coversWithApi++;
+      } else {
+        coversExcluded++;
       }
       
+      // Return song data without the original cover field to avoid large base64 data
+      const { cover: originalCover, cover_binary, ...songData } = song;
+      
       return {
-        ...song,
-        id: index + 1,
+        ...songData,
         cover: cover
       };
     });
+    
+    console.log(`Cover stats: ${coversWithApi} covers using API, ${coversExcluded} covers excluded`);
     
     console.log(`📊 Returning ${allSongs.length} songs from SQLite database`);
     

@@ -34,6 +34,13 @@ function initDatabase() {
     )
   `);
   
+  // Add cover column if it doesn't exist (for existing databases)
+  try {
+    db.exec(`ALTER TABLE songs ADD COLUMN cover TEXT`);
+  } catch (e) {
+    // Column already exists, ignore error
+  }
+  
   // Create indexes for faster searching
   db.exec(`
     CREATE INDEX IF NOT EXISTS idx_artist ON songs(artist);
@@ -85,6 +92,14 @@ async function extractMetadata(filePath) {
       `${Math.floor(duration / 60)}:${Math.floor(duration % 60).toString().padStart(2, '0')}` : 
       '0:00';
     
+    // Extract cover art if available
+    let coverUrl = null;
+    if (metadata.common.picture && metadata.common.picture.length > 0) {
+      const cover = metadata.common.picture[0];
+      const base64 = cover.data.toString('base64');
+      coverUrl = `data:${cover.format};base64,${base64}`;
+    }
+    
     return {
       title: metadata.common.title || path.basename(filePath, path.extname(filePath)),
       artist: metadata.common.artist || 'Unknown Artist',
@@ -93,7 +108,7 @@ async function extractMetadata(filePath) {
       duration: durationStr,
       track: metadata.common.track?.no || null,
       path: filePath.replace(/\\/g, '/'), // Normalize path separators
-      cover: null // We'll skip cover images for now to keep DB size manageable
+      cover: coverUrl
     };
   } catch (error) {
     console.warn(`Error parsing ${filePath}:`, error.message);

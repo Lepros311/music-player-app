@@ -87,9 +87,7 @@ import MainLayout from '../layouts/MainLayout.astro';
               <td x-text="song.year"></td>
               <td>
                 <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 4px;">
-                  <img :src="song.cover || '/default-cover.svg'" :alt="song.title + ' cover'" width="40" height="40" style="object-fit: cover; border-radius: 4px; max-width: 100%; max-height: 100%;" 
-                       @error="$el.style.display='none'; $el.nextElementSibling.style.display='flex';" />
-                  <div style="display: none; font-size: 10px; color: #6c757d; text-align: center; padding: 2px;">?</div>
+                  <img :src="song.cover" :alt="song.title + ' cover'" width="40" height="40" style="object-fit: cover; border-radius: 4px; max-width: 100%; max-height: 100%;" />
                 </div>
               </td>
             </tr>

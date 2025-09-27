@@ -1,25 +1,3 @@
-            // Initialize Plyr audio player
-            let player = null;
-
-            document.addEventListener('DOMContentLoaded', () => {
-              console.log("🎵 Initializing Plyr audio player...");
-              const audioElement = document.getElementById('player');
-              if (audioElement && window.Plyr) {
-                player = new Plyr(audioElement, {
-                  controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume'],
-                  settings: ['speed'],
-                  speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] }
-                });
-                window.player = player;
-                console.log("✅ Plyr player initialized:", player);
-              } else {
-                console.error("❌ Failed to initialize Plyr player - audio element or Plyr not found");
-              }
-
-              console.log("✅ Return to top button uses direct onclick handler");
-            });
-
-
 // Alpine.js components
 document.addEventListener("alpine:init", () => {
   console.log("🔧 Alpine init event fired, registering components...");
@@ -44,15 +22,15 @@ document.addEventListener("alpine:init", () => {
     sortBy: "artist",
     sortDir: "asc",
     
-            // Lazy loading
-            itemsPerPage: 100,
-            currentDisplayCount: 100,
-                isLoadingMore: false,
-                loadMoreObserver: null,
-                
-                // Return to top
-                showReturnToTop: false,
-                headerObserver: null,
+    // Lazy loading
+    itemsPerPage: 100,
+    currentDisplayCount: 100,
+    isLoadingMore: false,
+    loadMoreObserver: null,
+    
+    // Return to top
+    showReturnToTop: false,
+    headerObserver: null,
     
     // Stats
     totalSongs: 0,
@@ -109,23 +87,22 @@ document.addEventListener("alpine:init", () => {
       }
     },
 
-
-                async init() {
-                  try {
-                    console.log("🚀 Library component init() called!");
-                    // Load all songs initially
-                    await this.loadAllSongs();
-                    console.log("Library initialized with songs loaded");
-                    
-                    // Set up automatic lazy loading
-                    this.setupLazyLoading();
-                    
-                    // Set up return to top button
-                    this.setupReturnToTop();
-                  } catch (error) {
-                    console.error("Error initializing library:", error);
-                  }
-                },
+    async init() {
+      try {
+        console.log("🚀 Library component init() called!");
+        // Load all songs initially
+        await this.loadAllSongs();
+        console.log("Library initialized with songs loaded");
+        
+        // Set up automatic lazy loading
+        this.setupLazyLoading();
+        
+        // Set up return to top button
+        this.setupReturnToTop();
+      } catch (error) {
+        console.error("Error initializing library:", error);
+      }
+    },
 
     async loadAllSongs() {
       try {
@@ -234,80 +211,80 @@ document.addEventListener("alpine:init", () => {
       this.applyFiltersAndSort();
     },
 
-                setupLazyLoading() {
-                  // Create a sentinel element at the bottom of the page
-                  this.$nextTick(() => {
-                    const sentinel = document.getElementById('load-more-sentinel');
-                    if (sentinel && 'IntersectionObserver' in window) {
-                      this.loadMoreObserver = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                          if (entry.isIntersecting && this.hasMoreSongs && !this.isLoadingMore) {
-                            console.log('🔄 Auto-loading more songs...');
-                            this.loadMore();
-                          }
-                        });
-                      }, {
-                        root: null,
-                        rootMargin: '100px', // Start loading when 100px away from the sentinel
-                        threshold: 0.1
-                      });
-                      
-                      this.loadMoreObserver.observe(sentinel);
-                      console.log('👀 Lazy loading observer set up');
-                    }
-                  });
-                },
+    setupLazyLoading() {
+      // Create a sentinel element at the bottom of the page
+      this.$nextTick(() => {
+        const sentinel = document.getElementById('load-more-sentinel');
+        if (sentinel && 'IntersectionObserver' in window) {
+          this.loadMoreObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting && this.hasMoreSongs && !this.isLoadingMore) {
+                console.log('🔄 Auto-loading more songs...');
+                this.loadMore();
+              }
+            });
+          }, {
+            root: null,
+            rootMargin: '100px', // Start loading when 100px away from the sentinel
+            threshold: 0.1
+          });
+          
+          this.loadMoreObserver.observe(sentinel);
+          console.log('👀 Lazy loading observer set up');
+        }
+      });
+    },
 
-            setupReturnToTop() {
-              // Ensure button starts hidden
-              this.showReturnToTop = false;
-              
-              this.$nextTick(() => {
-                const tableHeader = document.querySelector('.table-dark');
-                if (tableHeader && 'IntersectionObserver' in window) {
-                  this.headerObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                      this.showReturnToTop = !entry.isIntersecting;
-                    });
-                  }, {
-                    root: null,
-                    rootMargin: '0px',
-                    threshold: 0
-                  });
-                  
-                  this.headerObserver.observe(tableHeader);
-                }
-              });
-            },
+    setupReturnToTop() {
+      // Ensure button starts hidden
+      this.showReturnToTop = false;
+      
+      this.$nextTick(() => {
+        const tableHeader = document.querySelector('.table-dark');
+        if (tableHeader && 'IntersectionObserver' in window) {
+          this.headerObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              this.showReturnToTop = !entry.isIntersecting;
+            });
+          }, {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0
+          });
+          
+          this.headerObserver.observe(tableHeader);
+        }
+      });
+    },
 
-                returnToTop() {
-                  window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                  });
-                },
+    returnToTop() {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    },
 
-                loadMore() {
-                  if (this.isLoadingMore || this.displayedSongs.length >= this.filteredSongs.length) {
-                    return;
-                  }
-                  
-                  this.isLoadingMore = true;
-                  
-                  // Simulate a small delay for smooth loading
-                  setTimeout(() => {
-                    const newCount = Math.min(
-                      this.currentDisplayCount + this.itemsPerPage,
-                      this.filteredSongs.length
-                    );
-                    
-                    this.currentDisplayCount = newCount;
-                    this.displayedSongs = this.filteredSongs.slice(0, newCount);
-                    this.isLoadingMore = false;
-                    
-                    console.log(`📄 Loaded more songs, now showing ${this.displayedSongs.length} of ${this.filteredSongs.length}`);
-                  }, 100);
-                },
+    loadMore() {
+      if (this.isLoadingMore || this.displayedSongs.length >= this.filteredSongs.length) {
+        return;
+      }
+      
+      this.isLoadingMore = true;
+      
+      // Simulate a small delay for smooth loading
+      setTimeout(() => {
+        const newCount = Math.min(
+          this.currentDisplayCount + this.itemsPerPage,
+          this.filteredSongs.length
+        );
+        
+        this.currentDisplayCount = newCount;
+        this.displayedSongs = this.filteredSongs.slice(0, newCount);
+        this.isLoadingMore = false;
+        
+        console.log(`📄 Loaded more songs, now showing ${this.displayedSongs.length} of ${this.filteredSongs.length}`);
+      }, 100);
+    },
 
     get hasMoreSongs() {
       return this.displayedSongs.length < this.filteredSongs.length;
