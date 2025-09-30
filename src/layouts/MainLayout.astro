@@ -54,6 +54,10 @@ const { title } = Astro.props;
     <!-- Audio Player - positioned outside main to span full viewport -->
     <div class="fixed-bottom bg-dark text-white p-3" style="z-index: 1000; left: 0; right: 0; width: 100vw; margin: 0; padding-left: 0; padding-right: 0;">
       <div style="width: 100%; padding: 0 1rem;">
+        <!-- Current Song Display -->
+        <div x-show="currentSong && isPlaying" class="text-center mb-2" style="font-size: 14px; color: #e0e0e0;">
+          <span x-text="currentSong ? currentSong.title + ' - ' + currentSong.artist : ''"></span>
+        </div>
         <audio id="audio-player" class="plyr-audio" controls crossorigin="anonymous" playsinline style="width: 100%;">
           <source src="" type="audio/mpeg" />
           Your browser doesn't support audio.

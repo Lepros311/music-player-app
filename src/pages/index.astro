@@ -119,6 +119,16 @@ import MainLayout from '../layouts/MainLayout.astro';
                 max-width: none !important;
               }
               
+              /* Playing song highlight */
+              .playing-song {
+                background-color: rgba(13, 110, 253, 0.1) !important;
+                border-left: 4px solid #0d6efd !important;
+              }
+              
+              .playing-song td {
+                background-color: rgba(13, 110, 253, 0.1) !important;
+              }
+              
               /* Smooth transitions */
               [x-cloak] {
                 display: none !important;
@@ -241,7 +251,12 @@ import MainLayout from '../layouts/MainLayout.astro';
           
           <!-- Songs -->
           <template x-for="song in displayedSongs" :key="song.id">
-            <tr @dblclick="playSong(song)" class="song-row">
+            <tr 
+              @click="playSong(song)" 
+              class="song-row"
+              :class="{ 'playing-song': currentSong && currentSong.id === song.id && isPlaying }"
+              style="cursor: pointer;"
+            >
               <td x-text="song.title"></td>
               <td x-text="song.artist"></td>
               <td x-text="song.album"></td>

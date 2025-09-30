@@ -510,3 +510,13 @@ body.dark-mode .plyr {
   background-color: #404040 !important; /* Light inner background */
   border-radius: 4px !important; /* Rounded corners for inner area */
 }
+
+/* Dark mode playing song highlight */
+body.dark-mode .playing-song {
+  background-color: rgba(13, 110, 253, 0.2) !important;
+  border-left: 4px solid #0d6efd !important;
+}
+
+body.dark-mode .playing-song td {
+  background-color: rgba(13, 110, 253, 0.2) !important;
+}
