@@ -151,10 +151,18 @@ main {
   -ms-user-select: none; /* IE/Edge */
 }
 
+/* Audio player full width styling */
+.fixed-bottom {
+  width: 100vw !important;
+  left: 0 !important;
+  right: 0 !important;
+  position: fixed !important;
+}
+
 /* Hide player on small screens if needed, but keep for now */
 @media (max-width: 576px) {
   .fixed-bottom {
-    padding: 0.5rem;
+    padding: 0.5rem 0;
   }
 }
 
@@ -486,7 +494,7 @@ body.dark-mode .fixed-bottom {
   background-color: #1a1a1a !important; /* Dark outer container */
   border: 2px solid #404040 !important;
   border-radius: 4px !important;
-  padding: 1rem !important; /* Match Bootstrap's default padding */
+  padding: 1rem !important; /* Full padding for dark mode */
 }
 
 body.dark-mode .plyr {

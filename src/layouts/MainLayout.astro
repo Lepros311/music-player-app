@@ -49,12 +49,16 @@ const { title } = Astro.props;
     <button class="btn btn-light btn-sm sidebar-reveal" onclick="toggleSidebar()" aria-label="Expand playlists" title="Expand playlists"><i class="fas fa-chevron-right"></i></button>
     <main class="flex-grow-1 p-3 overflow-auto">
       <slot />
-      <div class="fixed-bottom bg-dark text-white p-3" style="z-index: 1000;">
-        <audio id="player" class="plyr-audio" controls crossorigin="anonymous" playsinline>
+    </main>
+    
+    <!-- Audio Player - positioned outside main to span full viewport -->
+    <div class="fixed-bottom bg-dark text-white p-3" style="z-index: 1000; left: 0; right: 0; width: 100vw; margin: 0; padding-left: 0; padding-right: 0;">
+      <div style="width: 100%; padding: 0 1rem;">
+        <audio id="audio-player" class="plyr-audio" controls crossorigin="anonymous" playsinline style="width: 100%;">
           <source src="" type="audio/mpeg" />
           Your browser doesn't support audio.
         </audio>
       </div>
-    </main>
+    </div>
   </body>
 </html>

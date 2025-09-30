@@ -3,36 +3,142 @@
 import MainLayout from '../layouts/MainLayout.astro';
 ---
 
-<style>
-  /* Loading modal styles */
-  .modal.show {
-    display: block !important;
-  }
-  
-  .modal-backdrop {
-    background-color: rgba(0,0,0,0.8);
-  }
-  
-  /* Smooth transitions */
-  [x-cloak] {
-    display: none !important;
-  }
-  
-  /* Fade transitions */
-  .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease;
-  }
-  .fade-enter, .fade-leave-to {
-    opacity: 0;
-  }
-</style>
+            <style>
+              /* Loading modal styles */
+              .modal.show {
+                display: block !important;
+              }
+              
+              .modal-backdrop {
+                background-color: rgba(0,0,0,0.8);
+              }
+              
+              /* Light mode modal content */
+              .loading-modal .modal-content {
+                background-color: #fff;
+                color: #000;
+                border: 1px solid #dee2e6;
+              }
+              
+              .loading-modal .modal-content .text-muted {
+                color: #6c757d !important;
+              }
+              
+              .loading-modal .spinner-border {
+                color: #0d6efd !important;
+              }
+              
+              .loading-modal .progress {
+                background-color: #e9ecef;
+              }
+              
+              .loading-modal .progress-bar {
+                background-color: #0d6efd;
+              }
+              
+              /* Dark mode modal content */
+              body.dark-mode .loading-modal .modal-content {
+                background-color: #2d2d2d !important;
+                color: #e0e0e0 !important;
+                border: 1px solid #404040 !important;
+              }
+              
+              body.dark-mode .loading-modal .modal-content .text-muted {
+                color: #adb5bd !important;
+              }
+              
+              body.dark-mode .loading-modal .spinner-border {
+                color: #0d6efd !important;
+              }
+              
+              body.dark-mode .loading-modal .progress {
+                background-color: #404040 !important;
+              }
+              
+              body.dark-mode .loading-modal .progress-bar {
+                background-color: #0d6efd !important;
+              }
+              
+              /* Prevent layout shifts that cause scrolling */
+              html {
+                scroll-behavior: auto !important;
+                overflow-x: hidden !important;
+                height: 100% !important;
+              }
+              
+              body {
+                scroll-behavior: auto !important;
+                overflow-x: hidden !important;
+                position: relative !important;
+                top: 0 !important;
+                left: 0 !important;
+                height: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+              }
+              
+              /* Ensure main content has proper spacing and prevent shifts */
+              main {
+                padding-bottom: 100px !important;
+                min-height: calc(100vh - 100px) !important;
+                position: relative !important;
+                top: 0 !important;
+              }
+              
+              /* Prevent any element from causing layout shifts */
+              * {
+                box-sizing: border-box !important;
+              }
+              
+              /* Ensure the audio player doesn't cause shifts */
+              .fixed-bottom {
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                width: 100vw !important;
+                z-index: 1000 !important;
+                height: auto !important;
+                min-height: 80px !important;
+              }
+              
+              /* Force Plyr audio player to full width */
+              .plyr-audio {
+                width: 100% !important;
+                max-width: none !important;
+              }
+              
+              .plyr {
+                width: 100% !important;
+                max-width: none !important;
+              }
+              
+              /* Override any Plyr container constraints */
+              .fixed-bottom .plyr {
+                width: 100% !important;
+                max-width: none !important;
+              }
+              
+              /* Smooth transitions */
+              [x-cloak] {
+                display: none !important;
+              }
+              
+              /* Fade transitions */
+              .fade-enter-active, .fade-leave-active {
+                transition: opacity 0.3s ease;
+              }
+              .fade-enter, .fade-leave-to {
+                opacity: 0;
+              }
+            </style>
 
         <MainLayout title="Music Library">
           <div id="top"></div>
           <div x-data="library" x-init="init()" x-bind:class="{ 'debug-loaded': true }" x-cloak>
     
-    <!-- Loading Modal -->
-    <div x-show="allSongs.length === 0" class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.8);" x-transition:enter="fade" x-transition:leave="fade" x-bind:style="allSongs.length > 0 ? 'display: none !important;' : ''">
+                <!-- Loading Modal -->
+                <div x-show="allSongs.length === 0" class="modal fade show d-block loading-modal" tabindex="-1" style="background-color: rgba(0,0,0,0.8);" x-transition:enter="fade" x-transition:leave="fade" x-bind:style="allSongs.length > 0 ? 'display: none !important;' : ''">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-body text-center py-5">
@@ -87,36 +193,36 @@ import MainLayout from '../layouts/MainLayout.astro';
             <th @click="sort('title')" class="sortable" style="cursor: pointer; width: 25%;">
               Title 
               <span x-show="sortBy === 'title'">
-                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
-                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+                <i x-show="sortOrder === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortOrder === 'desc'" class="fas fa-sort-down"></i>
               </span>
             </th>
             <th @click="sort('artist')" class="sortable" style="cursor: pointer; width: 20%;">
               Artist 
               <span x-show="sortBy === 'artist'">
-                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
-                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+                <i x-show="sortOrder === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortOrder === 'desc'" class="fas fa-sort-down"></i>
               </span>
             </th>
             <th @click="sort('album')" class="sortable" style="cursor: pointer; width: 20%;">
               Album 
               <span x-show="sortBy === 'album'">
-                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
-                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+                <i x-show="sortOrder === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortOrder === 'desc'" class="fas fa-sort-down"></i>
               </span>
             </th>
             <th @click="sort('duration')" class="sortable" style="cursor: pointer; width: 8%;">
               Duration 
               <span x-show="sortBy === 'duration'">
-                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
-                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+                <i x-show="sortOrder === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortOrder === 'desc'" class="fas fa-sort-down"></i>
               </span>
             </th>
             <th @click="sort('year')" class="sortable" style="cursor: pointer; width: 7%;">
               Year 
               <span x-show="sortBy === 'year'">
-                <i x-show="sortDir === 'asc'" class="fas fa-sort-up"></i>
-                <i x-show="sortDir === 'desc'" class="fas fa-sort-down"></i>
+                <i x-show="sortOrder === 'asc'" class="fas fa-sort-up"></i>
+                <i x-show="sortOrder === 'desc'" class="fas fa-sort-down"></i>
               </span>
             </th>
             <th style="width: 10%;">Cover</th>
@@ -159,23 +265,11 @@ import MainLayout from '../layouts/MainLayout.astro';
       </table>
     </div>
 
-                <!-- Lazy Loading Sentinel -->
-                <div id="load-more-sentinel" class="text-center mb-5 pb-4" x-show="hasMoreSongs">
-                  <div class="d-flex justify-content-center align-items-center" style="height: 60px;">
-                    <div x-show="isLoadingMore" class="spinner-border text-primary" role="status">
-                      <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <div x-show="!isLoadingMore" class="text-muted">
-                      <i class="fas fa-arrow-down"></i> Scroll to load more songs
-                    </div>
-                  </div>
-                </div>
 
             <!-- Return to Top Button -->
             <a 
               href="#top"
               id="return-to-top-btn"
-              x-show="showReturnToTop"
               class="btn btn-primary btn-lg position-fixed rounded-circle shadow-lg d-flex align-items-center justify-content-center"
               style="bottom: 120px; right: 20px; z-index: 1050; width: 60px; height: 60px; padding: 0; text-decoration: none;"
               title="Return to top"
@@ -186,3 +280,4 @@ import MainLayout from '../layouts/MainLayout.astro';
 
               </div>
 </MainLayout>
+

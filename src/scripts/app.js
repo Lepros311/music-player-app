@@ -21,12 +21,9 @@ Alpine.data("library", () => ({
   displayedSongs: [],
   currentSong: null,
   isPlaying: false,
-  isLoading: true,
   searchTerm: "",
   sortBy: "artist",
   sortOrder: "asc",
-  currentDisplayCount: 100,
-  itemsPerPage: 100,
   
   // Filter properties
   filters: {
@@ -39,20 +36,17 @@ Alpine.data("library", () => ({
   async init() {
     try {
       console.log("🚀 Library component init() called!");
-      console.log("🔍 Initial isLoading state:", this.isLoading);
       // Load all songs initially
       await this.loadAllSongs();
       console.log("Library initialized with songs loaded");
       
-      // Set up automatic lazy loading
-      this.setupLazyLoading();
+      // Lazy loading removed - not working properly
       
       // Set up return to top button
       this.setupReturnToTop();
     } catch (error) {
       console.error("Error initializing library:", error);
-      // Hide loading modal even if there's an error
-      this.isLoading = false;
+      // Error occurred during initialization
     }
   },
 
@@ -73,17 +67,15 @@ Alpine.data("library", () => ({
       // Initial filtering and display
       this.applyFiltersAndSort();
       
-      // Hide loading modal after songs are loaded
-      console.log("🎉 Songs loaded successfully, hiding loading modal");
-      this.isLoading = false;
+      // Songs loaded successfully
+      console.log("🎉 Songs loaded successfully");
     } catch (error) {
       console.error("Error loading songs:", error);
       this.allSongs = [];
       this.filteredSongs = [];
       this.displayedSongs = [];
-      // Hide loading modal even if there's an error
-      console.log("❌ Error loading songs, hiding loading modal");
-      this.isLoading = false;
+      // Error loading songs
+      console.log("❌ Error loading songs");
     }
   },
 
@@ -95,8 +87,6 @@ Alpine.data("library", () => ({
       year: this.filters.year
     });
     
-    // Reset display count
-    this.currentDisplayCount = this.itemsPerPage;
     
     // Apply filters
     let filtered = [...this.allSongs];
@@ -149,56 +139,12 @@ Alpine.data("library", () => ({
     });
     
     this.filteredSongs = filtered;
-    this.displayedSongs = filtered.slice(0, this.currentDisplayCount);
+    this.displayedSongs = filtered;
     
     console.log(`✅ Filtered to ${this.filteredSongs.length} songs, displaying ${this.displayedSongs.length}`);
   },
 
-  setupLazyLoading() {
-    // Create sentinel element for lazy loading
-    const sentinel = document.createElement('div');
-    sentinel.id = 'load-more-sentinel';
-    sentinel.style.height = '20px';
-    sentinel.style.background = 'transparent';
-    sentinel.innerHTML = '<div class="text-center text-muted py-3">Loading more songs...</div>';
-    
-    // Add sentinel to the end of the song list
-    const songList = document.getElementById('song-list');
-    if (songList) {
-      songList.appendChild(sentinel);
-      
-      // Set up intersection observer
-      if ('IntersectionObserver' in window) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach(entry => {
-            if (entry.isIntersecting && this.displayedSongs.length < this.filteredSongs.length) {
-              console.log('👀 Loading more songs...');
-              this.loadMore();
-            }
-          });
-        }, {
-          rootMargin: '200px',
-          threshold: 0.1
-        });
-        
-        observer.observe(sentinel);
-        console.log('👀 Lazy loading observer set up');
-      } else {
-        console.error('❌ IntersectionObserver not supported');
-      }
-    }
-  },
 
-  loadMore() {
-    const startIndex = this.displayedSongs.length;
-    const endIndex = Math.min(startIndex + this.itemsPerPage, this.filteredSongs.length);
-    
-    if (startIndex < this.filteredSongs.length) {
-      const newSongs = this.filteredSongs.slice(startIndex, endIndex);
-      this.displayedSongs = [...this.displayedSongs, ...newSongs];
-      console.log(`Loaded ${newSongs.length} more songs (${this.displayedSongs.length}/${this.filteredSongs.length} total)`);
-    }
-  },
 
   setupReturnToTop() {
     // Show/hide return to top button based on scroll position
@@ -237,6 +183,16 @@ Alpine.data("library", () => ({
     } else {
       this.playSong(this.currentSong);
     }
+  },
+
+  sort(column) {
+    if (this.sortBy === column) {
+      this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortBy = column;
+      this.sortOrder = 'asc';
+    }
+    this.applyFiltersAndSort();
   },
 
   clearFilters() {
