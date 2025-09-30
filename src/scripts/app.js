@@ -160,20 +160,50 @@ Alpine.data("library", () => ({
     this.currentSong = song;
     this.isPlaying = true;
     
-    // Update audio source
-    const audio = document.getElementById('audio-player');
-    if (audio) {
-      audio.src = `/api/audio/${encodeURIComponent(song.path)}`;
-      audio.load();
-      audio.play().catch(e => console.error('Playback failed:', e));
+    // Use Plyr player if available, otherwise fall back to basic audio
+    if (window.player) {
+      // Convert Windows path to API endpoint URL
+      let audioUrl;
+      if (song.path.startsWith('C:')) {
+        // Convert Windows path to API endpoint
+        const relativePath = song.path.replace('C:/Users/Andrew/Music/Music/', '');
+        audioUrl = `/api/audio/${relativePath.replace(/\\/g, '/')}`;
+      } else {
+        audioUrl = song.path;
+      }
+      
+      console.log("🎵 Playing song:", song.title, "by", song.artist);
+      console.log("🔗 Audio URL:", audioUrl);
+      
+      window.player.source = {
+        type: 'audio',
+        sources: [{
+          src: audioUrl,
+          type: 'audio/mpeg'
+        }]
+      };
+      
+      window.player.play();
+    } else {
+      // Fallback to basic audio element
+      const audio = document.getElementById('audio-player');
+      if (audio) {
+        audio.src = `/api/audio/${encodeURIComponent(song.path)}`;
+        audio.load();
+        audio.play().catch(e => console.error('Playback failed:', e));
+      }
     }
   },
 
   pauseSong() {
     this.isPlaying = false;
-    const audio = document.getElementById('audio-player');
-    if (audio) {
-      audio.pause();
+    if (window.player) {
+      window.player.pause();
+    } else {
+      const audio = document.getElementById('audio-player');
+      if (audio) {
+        audio.pause();
+      }
     }
   },
 

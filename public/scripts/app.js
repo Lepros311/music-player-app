@@ -3,7 +3,7 @@
 
             document.addEventListener('DOMContentLoaded', () => {
               console.log("🎵 Initializing Plyr audio player...");
-              const audioElement = document.getElementById('player');
+              const audioElement = document.getElementById('audio-player');
               if (audioElement && window.Plyr) {
                 player = new Plyr(audioElement, {
                   controls: ['play', 'progress', 'current-time', 'duration', 'mute', 'volume'],
